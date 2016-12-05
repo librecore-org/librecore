@@ -1,2 +1,0 @@
-config BOARD_GOOGLE_RAMBI
-	bool "Rambi"
