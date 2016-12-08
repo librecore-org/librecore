@@ -22,10 +22,11 @@ cbfsobj += LzFind.o
 cbfsobj += LzmaDec.o
 cbfsobj += LzmaEnc.o
 # CRYPTOLIB
-cbfsobj += 2sha_utility.o
-cbfsobj += 2sha1.o
-cbfsobj += 2sha256.o
-cbfsobj += 2sha512.o
+cbfsobj += 2sha_stub.o
+#cbfsobj += 2sha_utility.o
+#cbfsobj += 2sha1.o
+#cbfsobj += 2sha256.o
+#cbfsobj += 2sha512.o
 # LZ4
 cbfsobj += lz4.o
 cbfsobj += lz4hc.o
@@ -62,7 +63,7 @@ ifwiobj :=
 ifwiobj += ifwitool.o
 ifwiobj += common.o
 
-TOOLCFLAGS ?= -Werror -Wall -Wextra
+TOOLCFLAGS ?= -Werror -Wall -Wextra -Wno-unused-parameter
 TOOLCFLAGS += -Wcast-qual -Wmissing-prototypes -Wredundant-decls -Wshadow
 TOOLCFLAGS += -Wstrict-prototypes -Wwrite-strings
 TOOLCPPFLAGS ?= -D_DEFAULT_SOURCE # memccpy() from string.h
@@ -71,6 +72,7 @@ TOOLCPPFLAGS += -I$(top)/util/cbfstool/flashmap
 TOOLCPPFLAGS += -I$(top)/util/cbfstool
 TOOLCPPFLAGS += -I$(objutil)/cbfstool
 TOOLCPPFLAGS += -I$(top)/src/commonlib/include
+TOOLCPPFLAGS += -I$(top)/src/vbootstub/include
 TOOLCPPFLAGS += -DNEED_VB2_SHA_LIBRARY
 TOOLCPPFLAGS += -I$(VBOOT_SOURCE)/firmware/include
 TOOLCPPFLAGS += -I$(VBOOT_SOURCE)/firmware/2lib/include
@@ -113,6 +115,10 @@ $(objutil)/cbfstool/%.o: $(top)/util/cbfstool/lzma/C/%.c
 	$(HOSTCC) $(TOOLCPPFLAGS) $(TOOLCFLAGS) $(HOSTCFLAGS) -c -o $@ $<
 
 $(objutil)/cbfstool/%.o: $(VBOOT_SOURCE)/firmware/2lib/%.c
+	printf "    HOSTCC     $(subst $(objutil)/,,$(@))\n"
+	$(HOSTCC) $(TOOLCPPFLAGS) $(TOOLCFLAGS) $(HOSTCFLAGS) -c -o $@ $<
+
+$(objutil)/cbfstool/%.o: $(top)/src/vbootstub/%.c
 	printf "    HOSTCC     $(subst $(objutil)/,,$(@))\n"
 	$(HOSTCC) $(TOOLCPPFLAGS) $(TOOLCFLAGS) $(HOSTCFLAGS) -c -o $@ $<
 
