@@ -85,7 +85,7 @@ subdirs-y += util/cbfstool util/sconfig util/nvramtool util/broadcom
 subdirs-y += util/futility util/marvell
 subdirs-y += $(wildcard src/arch/*)
 subdirs-y += src/mainboard/$(MAINBOARDDIR)
-subdirs-y += src/vboot
+subdirs-y += src/vbootstub
 subdirs-y += payloads payloads/external
 
 subdirs-y += site-local
@@ -183,16 +183,7 @@ ifeq ($(CONFIG_COVERAGE),y)
 ramstage-c-ccopts += -fprofile-arcs -ftest-coverage
 endif
 
-ifneq ($(UPDATED_SUBMODULES),1)
-# try to fetch non-optional submodules if the source is under git
-forgetthis:=$(if $(GIT),$(shell git submodule update --init))
-ifeq ($(CONFIG_USE_BLOBS),y)
-# this is necessary because 3rdparty/blobs is update=none, and so is ignored
-# unless explicitly requested and enabled through --checkout
-forgetthis:=$(if $(GIT),$(shell git submodule update --init --checkout 3rdparty/blobs))
-endif
 export UPDATED_SUBMODULES:=1
-endif
 
 ramstage-c-deps:=$$(OPTION_TABLE_H)
 romstage-c-deps:=$$(OPTION_TABLE_H)
@@ -347,6 +338,7 @@ export COREBOOT_EXTRA_VERSION := -$(call strip_quotes,$(CONFIG_LOCALVERSION))
 endif
 
 CPPFLAGS_common := -Isrc -Isrc/include -Isrc/commonlib/include -I$(obj)
+CPPFLAGS_common += -Isrc/vbootstub/include
 CPPFLAGS_common += -Isrc/device/oprom/include
 VBOOT_SOURCE ?= 3rdparty/vboot
 CPPFLAGS_common += -I$(VBOOT_SOURCE)/firmware/include
@@ -568,25 +560,7 @@ gitconfig:
 			chmod +x .git/hooks/$$hook;		     \
 		fi;						     \
 	done
-	# Now set up thehooks for 3rdparty/
-	for hooks in .git/modules/{3rdparty/blobs,libhwbase,libgfxinit}/hooks; do			\
-		if [ -d $$hooks -a									\
-		\( util/gitconfig/commit-msg -nt $$hooks/commit-msg -o					\
-			! -x $$hooks/commit-msg \) ]; then						\
-			sed -e "s,%MAKE%,$(MAKE),g" util/gitconfig/commit-msg > $$hooks/commit-msg;	\
-			chmod +x $$hooks/commit-msg;							\
-		fi											\
-	done
-	for d in 3rdparty/{blobs,libhwbase,libgfxinit}; do			\
-		if [ -d $$d ]; then						\
-			(cd $$d;						\
-			 git config remote.origin.push HEAD:refs/for/master);	\
-		fi;								\
-	done
 	git config remote.origin.push HEAD:refs/for/master
-	git config alias.sup '!git submodule update --remote --rebase && git submodule update --init --checkout'
-	git config alias.sup-destroy '!git submodule deinit --force "$$(git rev-parse --show-toplevel)"; git submodule init && git submodule update --checkout'
-	(git config --global --includes user.name >/dev/null && git config --global --includes user.email >/dev/null) || (printf 'Please configure your name and email in git:\n\n git config --global user.name "Your Name Comes Here"\n git config --global user.email your.email@example.com\n'; exit 1)
 
 include util/crossgcc/Makefile.inc
 
