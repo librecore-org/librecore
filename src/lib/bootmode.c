@@ -15,7 +15,9 @@
 
 #include <rules.h>
 #include <bootmode.h>
-#include <vendorcode/google/chromeos/chromeos.h>
+#if CONFIG_CHROMEOS
+# include <vendorcode/google/chromeos/chromeos.h>
+#endif
 
 #if ENV_RAMSTAGE
 static int gfx_init_done = -1;
@@ -35,10 +37,10 @@ void gfx_set_init_done(int done)
 
 int display_init_required(void)
 {
+#if CONFIG_CHROMEOS
 	/* For Chrome OS always honor vboot_handoff_skip_display_init(). */
-	if (IS_ENABLED(CONFIG_CHROMEOS))
-		return !vboot_handoff_skip_display_init();
-
+	return !vboot_handoff_skip_display_init();
+#endif
 	/* By default always initialize display. */
 	return 1;
 }
