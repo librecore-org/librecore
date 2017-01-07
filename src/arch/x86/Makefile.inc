@@ -174,6 +174,7 @@ ifeq ($(CONFIG_ARCH_VERSTAGE_X86_32)$(CONFIG_ARCH_VERSTAGE_X86_64),y)
 
 verstage-y += boot.c
 
+verstage-y += 64bit_div.c
 verstage-$(CONFIG_ARCH_RAMSTAGE_X86_32) += cpu_common.c
 verstage-y += memset.c
 verstage-y += memcpy.c
@@ -208,6 +209,7 @@ romstage-$(CONFIG_HAVE_ACPI_RESUME) += acpi_s3.c
 romstage-y += boot.c
 romstage-y += cbmem.c
 romstage-y += cbfs_and_run.c
+romstage-y += 64bit_div.c
 romstage-$(CONFIG_ARCH_RAMSTAGE_X86_32) += cpu_common.c
 romstage-y += memcpy.c
 romstage-y += memmove.c
@@ -316,6 +318,7 @@ ramstage-$(CONFIG_HAVE_ACPI_TABLES) += acpigen.c
 ramstage-$(CONFIG_HAVE_ACPI_TABLES) += acpigen_dsm.c
 ramstage-$(CONFIG_HAVE_ACPI_TABLES) += acpi_device.c
 ramstage-$(CONFIG_HAVE_ACPI_RESUME) += acpi_s3.c
+ramstage-y += 64bit_div.c
 ramstage-y += boot.c
 ramstage-y += c_start.S
 ramstage-y += cbmem.c

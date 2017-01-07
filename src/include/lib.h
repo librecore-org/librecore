@@ -68,4 +68,10 @@ static inline int __ffs(u32 x) { return log2(x & (u32)(-(s32)x)); }
 /* Integer binary logarithm (rounding up): log2_ceil(0) == -1, log2(5) == 3 */
 static inline int log2_ceil(u32 x) { return (x == 0) ? -1 : log2(x * 2 - 1); }
 
+uint64_t __umoddi3(uint64_t num, uint64_t den);
+uint64_t  __udivdi3(uint64_t num, uint64_t den);
+uint64_t __ashldi3(uint64_t num, unsigned shift);
+uint64_t __lshrdi3(uint64_t num, unsigned shift);
+int64_t __divdi3(int64_t num, int64_t den);
+
 #endif /* __LIB_H__ */
