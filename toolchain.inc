@@ -191,9 +191,13 @@ else #$(CONFIG_ANY_TOOLCHAIN)
 # If the coreboot toolchain isn't being used, verify that there is A toolchain
 $(foreach arch,$(sort \
 	$(foreach stage,$(COREBOOT_STANDARD_STAGES),$(ARCH-$(stage)-y))), \
-	$(if $(CC_$(arch)),, $(eval COMPILERFAIL:=1) \
-	$(warning No compiler found for '$(arch)' architecture. \
-		Install one or use the coreboot toolchain?)) )
+	$(if $(CONFIG_COMPILER_LLVM_CLANG), \
+		$(if $(CLANG_CC_$(arch)),, $(eval COMPILERFAIL:=1) \
+		$(warning No clang compiler found for '$(arch)' architecture. \
+			Install one or use the coreboot toolchain?)), \
+		$(if $(CC_$(arch)),, $(eval COMPILERFAIL:=1) \
+		$(warning No compiler found for '$(arch)' architecture. \
+			Install one or use the coreboot toolchain?))))
 # If iasl isn't present, fail
 # TODO: Figure out if iasl is even needed for the build.
 $(if $(IASL),, $(eval COMPILERFAIL:=1)$(eval IASLFAIL:=1) \
