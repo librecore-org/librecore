@@ -590,12 +590,12 @@ getoptbrand="$(getopt -V)"
 # shellcheck disable=SC2086
 if [ "${getoptbrand:0:6}" == "getopt" ]; then
 	# Detected GNU getopt that supports long options.
-	args=$(getopt -l version,verbose,quiet,help,all,target:,payloads:,cpus:,silent,junit,config,loglevel:,remove,prefix:,update,scan-build,ccache,blobs,clang,clean,outdir:,chromeos,xmlfile:,kconfig:,dir:,root:,recursive -o Vvqhat:p:c:sJCl:rP:uyBLzo:xX:K:d:R:I -- "$@") || exit 1
+	args=$(getopt -l version,verbose,quiet,help,all,target:,payloads:,cpus:,silent,junit,config,loglevel:,remove,prefix:,update,scan-build,ccache,blobs,clang,clean,outdir:,chromeos,xmlfile:,kconfig:,dir:,root:,recursive -o Vvqhat:p:c:sJCl:rP:uyBLAzo:xX:K:d:R:I -- "$@") || exit 1
 	eval set -- $args
 	retval=$?
 else
 	# Detected non-GNU getopt
-	args=$(getopt Vvqhat:p:c:sJCl:rP:uyBLzo:xX:K:d:R:I "$@")
+	args=$(getopt Vvqhat:p:c:sJCl:rP:uyBLAzo:xX:K:d:R:I "$@")
 	set -- $args
 	retval=$?
 fi
@@ -661,6 +661,10 @@ while true ; do
 		-L|--clang)	shift
 			customizing="${customizing}, clang"
 			configoptions="${configoptions}CONFIG_COMPILER_LLVM_CLANG=y\n# CONFIG_COMPILER_GCC is not set\n"
+			;;
+		-A|--any-toolchain)	shift
+			customizing="${customizing}, any-toolchain"
+			configoptions="${configoptions}CONFIG_ANY_TOOLCHAIN=y\n"
 			;;
 		-z|--clean)	shift
 			customizing="${customizing}, clean"
