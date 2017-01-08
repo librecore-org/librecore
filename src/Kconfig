@@ -58,7 +58,7 @@ config COMPILER_GCC
 	  For details see http://gcc.gnu.org.
 
 config COMPILER_LLVM_CLANG
-	bool "LLVM/clang (TESTING ONLY - Not currently working)"
+	bool "LLVM/clang"
 	help
 	  Use LLVM/clang to build coreboot.  To use this, you must build the
 	  coreboot version of the clang compiler.  Run the command
