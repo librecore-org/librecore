@@ -1682,7 +1682,7 @@ static void detect_and_enable_probe_filter(device_t dev)
 	uint8_t rev_gte_d = 0;
 	uint8_t dual_node = 0;
 	unsigned nb_cfg_54;
-	uint32_t f3xe8;
+	uint32_t f3xe8 = 0; // XXX uninitialized
 	uint32_t family;
 	uint32_t model;
 
