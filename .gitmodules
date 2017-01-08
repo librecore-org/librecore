@@ -1,0 +1,3 @@
+[submodule "3rdparty/microcode"]
+	path = 3rdparty/microcode
+	url = https://github.com/librecore-org/microcode.git
