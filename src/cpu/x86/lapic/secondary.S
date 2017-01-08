@@ -1,6 +1,12 @@
 #include <cpu/x86/mtrr.h>
 #include <cpu/x86/lapic_def.h>
 
+/* https://llvm.org/bugs/show_bug.cgi?id=31576
+ * Remove this when bug is fixed.
+ * Until then, roms may not run but at least we can compile test them
+ */
+#define BUG_31576_LLVM_INTEGRATED_AS 1
+
 #if CONFIG_SMP && CONFIG_MAX_CPUS > 1
 	.text
 	.globl _secondary_start, _secondary_start_end, _secondary_gdt_addr
@@ -19,8 +25,11 @@ _secondary_start:
 	movw	%cs, %ax
 	movw	%ax, %ds
 
-	data32	lgdt	gdtaddr  - _secondary_start
-
+#ifdef BUG_31576_LLVM_INTEGRATED_AS
+	lgdt	gdtaddr - _secondary_start
+#else
+	data32 lgdt	gdtaddr - _secondary_start
+#endif
 	movl	%cr0, %eax
 	andl	$0x7FFAFFD1, %eax /* PG,AM,WP,NE,TS,EM,MP = 0 */
 	orl	$0x60000001, %eax /* CD, NW, PE = 1 */
