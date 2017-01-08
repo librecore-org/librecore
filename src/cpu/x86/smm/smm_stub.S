@@ -58,7 +58,7 @@ fallback_stack_top:
 .global _start
 _start:
 	movl	$(smm_relocate_gdt), %ebx
-	data32	lgdt (%ebx)
+	lgdtl	(%ebx)
 
 	movl	%cr0, %eax
 	andl	$0x1FFAFFD1, %eax /* CD,NW,PG,AM,WP,NE,TS,EM,MP = 0 */
@@ -66,7 +66,7 @@ _start:
 	movl	%eax, %cr0
 
 	/* Enable protected mode */
-	data32	ljmp $0x8, $smm_trampoline32
+	ljmpl	$0x8, $smm_trampoline32
 
 .align 4
 smm_relocate_gdt:

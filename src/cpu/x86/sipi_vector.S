@@ -72,7 +72,7 @@ _start:
 	movl	$(gdtaddr), %ebx
 	sub	$(_start), %ebx
 
-	data32 lgdt (%ebx)
+	lgdtl	(%ebx)
 
 	movl	%cr0, %eax
 	andl	$0x7FFAFFD1, %eax /* PG,AM,WP,NE,TS,EM,MP = 0 */
