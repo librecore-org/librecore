@@ -109,7 +109,11 @@ smm_relocation_start:
 	 */
 
 	mov $0x38000 + 0x7efc, %ebx
+#if IS_ENABLED(CONFIG_COMPILER_LLVM_CLANG)
+	mov (%ebx), %al
+#else
 	addr32 mov (%ebx), %al
+#endif
 	cmp $0x64, %al
 	je 1f
 
@@ -121,7 +125,11 @@ smm_relocation_start:
 smm_relocate:
 	/* Get this CPU's LAPIC ID */
 	movl $LAPIC_ID, %esi
+#if IS_ENABLED(CONFIG_COMPILER_LLVM_CLANG)
+	movl (%esi), %ecx
+#else
 	addr32 movl (%esi), %ecx
+#endif
 	shr  $24, %ecx
 
 	/* calculate offset by multiplying the
@@ -133,7 +141,11 @@ smm_relocate:
 	movl $0xa0000, %eax
 	subl %edx, %eax	/* subtract offset, see above */
 
+#if IS_ENABLED(CONFIG_COMPILER_LLVM_CLANG)
+	movl %eax, (%ebx)
+#else
 	addr32 movl %eax, (%ebx)
+#endif
 
 	/* The next section of code is potentially southbridge specific */
 
