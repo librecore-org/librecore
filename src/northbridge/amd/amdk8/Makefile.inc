@@ -1,5 +1,15 @@
 ifeq ($(CONFIG_NORTHBRIDGE_AMD_AMDK8),y)
 
+romstage-y += early_ht.c
+romstage-y += raminit_f_dqs.c
+romstage-y += raminit_f.c
+romstage-y += f_pci.c
+romstage-y += reset_test.c
+romstage-y += incoherent_ht.c
+romstage-y += coherent_ht.c
+romstage-y += debug.c
+romstage-$(CONFIG_HAVE_ACPI_RESUME) += exit_from_self.c
+
 ramstage-y += northbridge.c
 ramstage-y += misc_control.c
 ramstage-y += get_sblk_pci1234.c

@@ -18,49 +18,46 @@
  * GNU General Public License for more details.
  */
 
-unsigned int get_sbdn(unsigned bus);
-
 #include <stdint.h>
 #include <string.h>
 #include <device/pci_def.h>
 #include <arch/io.h>
 #include <device/pnp_def.h>
 #include <cpu/amd/mtrr.h>
+#include <cpu/amd/car.h>
 #include <cpu/x86/lapic.h>
 #include <pc80/mc146818rtc.h>
 #include <console/console.h>
 #include <cpu/amd/model_fxx_rev.h>
+#include <cpu/amd/model_fxx/init_cpus.h>
 #include <halt.h>
 #include <northbridge/amd/amdk8/raminit.h>
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/reset_test.h>
 #include <delay.h>
-#include "northbridge/amd/amdk8/reset_test.c"
-#include "northbridge/amd/amdk8/debug.c"
 #include <superio/ite/common/ite.h>
 #include <superio/ite/it8712f/it8712f.h>
-#include "southbridge/via/vt8237r/early_smbus.c"
 #include <cpu/x86/bist.h>
-#include "northbridge/amd/amdk8/setup_resource_map.c"
 #include <spd.h>
+#include "southbridge/via/vt8237r/early_smbus.c"
+#include "southbridge/via/k8t890/early_car.c"
+#include "northbridge/amd/amdk8/setup_resource_map.c"
+#include "northbridge/amd/amdk8/resourcemap.c"
 
 #define SERIAL_DEV PNP_DEV(0x2e, IT8712F_SP1)
 #define GPIO_DEV PNP_DEV(0x2e, IT8712F_GPIO)
 
-static void memreset(int controllers, const struct mem_controller *ctrl) { }
-static void activate_spd_rom(const struct mem_controller *ctrl) { }
+void memreset(int controllers, const struct mem_controller *ctrl) { }
+void activate_spd_rom(const struct mem_controller *ctrl) { }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+int spd_read_byte(unsigned device, unsigned address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include "southbridge/via/k8t890/early_car.c"
-#include <northbridge/amd/amdk8/amdk8.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
-#include "northbridge/amd/amdk8/raminit_f.c"
 #include "lib/generic_sdram.c"
 #include "cpu/amd/dualcore/dualcore.c"
-#include "cpu/amd/model_fxx/init_cpus.c"
 
 #define SB_VFSMAF 0
 
@@ -79,9 +76,6 @@ static void ldtstop_sb(void)
 	reg = inb(VT8237R_ACPI_IO_BASE + 0x15);
 	printk(BIOS_DEBUG, "done\n");
 }
-
-#include "cpu/amd/model_fxx/fidvid.c"
-#include "northbridge/amd/amdk8/resourcemap.c"
 
 void soft_reset(void)
 {

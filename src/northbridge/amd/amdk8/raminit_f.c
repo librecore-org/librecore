@@ -20,12 +20,21 @@
 #include <cpu/x86/mtrr.h>
 #include <cpu/x86/tsc.h>
 #include <cpu/amd/mtrr.h>
+#include <cpu/amd/msr.h>
 
 #include <lib.h>
+#include <string.h>
 #include <stdlib.h>
 #include <arch/acpi.h>
+#include <arch/io.h>
+#include <device/pci_def.h>
+#include <console/console.h>
+#include <pc80/mc146818rtc.h>
 #include "raminit.h"
+#include "amdk8.h"
 #include "f.h"
+#include "f_pci.h"
+#include "debug.h"
 #include <spd_ddr2.h>
 #if CONFIG_HAVE_OPTION_TABLE
 #include "option_table.h"
@@ -37,9 +46,8 @@
 #define printk_raminit(args...)
 #endif
 
-
-#include "f_pci.c"
-
+#include <arch/early_variables.h>
+struct sys_info sysinfo_car CAR_GLOBAL;
 
 	/* for PCI_ADDR(0, 0x18, 2, 0x98) index,
 	 and PCI_ADDR(0x, 0x18, 2, 0x9c) data */
@@ -89,7 +97,7 @@ static int controller_present(const struct mem_controller *ctrl)
 	return pci_read_config32(ctrl->f0, 0) == 0x11001022;
 }
 
-static void sdram_set_registers(const struct mem_controller *ctrl, struct sys_info *sysinfo)
+void sdram_set_registers(const struct mem_controller *ctrl, struct sys_info *sysinfo)
 {
 	static const unsigned int register_values[] = {
 
@@ -849,7 +857,7 @@ static void set_dimm_size(const struct mem_controller *ctrl,
 	/* Enable the memory clocks for this DIMM by Clear the MemClkDis bit*/
 	if (base0) {
 		uint32_t dword;
-		uint32_t ClkDis0;
+		uint32_t ClkDis0 = 0;
 #if CONFIG_CPU_SOCKET_TYPE == 0x10 /* L1 */
 		ClkDis0 = DTL_MemClkDis0;
 #elif CONFIG_CPU_SOCKET_TYPE == 0x11 /* AM2 */
@@ -2487,8 +2495,8 @@ static void set_SlowAccessMode(const struct mem_controller *ctrl)
 */
 static void set_misc_timing(const struct mem_controller *ctrl, struct mem_info *meminfo)
 {
-	uint32_t dword;
-	uint32_t dwordx;
+	uint32_t dword = 0;
+	uint32_t dwordx = 0;
 #if (CONFIG_DIMM_SUPPORT & 0x0100) == 0x0000 /* 2T mode only used for unbuffered DIMM */
 	unsigned SlowAccessMode = 0;
 #endif
@@ -2790,7 +2798,7 @@ static long spd_set_dram_timing(const struct mem_controller *ctrl,
 	return meminfo->dimm_mask;
 }
 
-static void sdram_set_spd_registers(const struct mem_controller *ctrl,
+void sdram_set_spd_registers(const struct mem_controller *ctrl,
 				     struct sys_info *sysinfo)
 {
 	struct spd_set_memclk_result result;
@@ -2861,7 +2869,7 @@ static void sdram_set_spd_registers(const struct mem_controller *ctrl,
 
 #define TIMEOUT_LOOPS 300000
 
-#include "raminit_f_dqs.c"
+//#include "raminit_f_dqs.c"
 
 #if CONFIG_HW_MEM_HOLE_SIZEK != 0
 static uint32_t hoist_memory(int controllers, const struct mem_controller *ctrl,unsigned hole_startk, int i)
@@ -2918,7 +2926,7 @@ static uint32_t hoist_memory(int controllers, const struct mem_controller *ctrl,
 	return carry_over;
 }
 
-static void set_hw_mem_hole(int controllers, const struct mem_controller *ctrl)
+void set_hw_mem_hole(int controllers, const struct mem_controller *ctrl)
 {
 
 	uint32_t hole_startk;
@@ -2971,11 +2979,8 @@ static void set_hw_mem_hole(int controllers, const struct mem_controller *ctrl)
 
 }
 #endif
-#if CONFIG_HAVE_ACPI_RESUME
-#include "exit_from_self.c"
-#endif
 
-static void sdram_enable(int controllers, const struct mem_controller *ctrl,
+void sdram_enable(int controllers, const struct mem_controller *ctrl,
 			  struct sys_info *sysinfo)
 {
 	int i;
@@ -3166,7 +3171,7 @@ static void sdram_enable(int controllers, const struct mem_controller *ctrl,
 		if (sysinfo->mem_trained[i]!=0x80)
 			continue;
 
-		dqs_timing(i, &ctrl[i], sysinfo, 1);
+		dqs_timing(i, &ctrl[i], sysinfo);
 
 #if CONFIG_MEM_TRAIN_SEQ == 1
 		break; // only train the first node with ram

@@ -21,6 +21,9 @@
 #if !IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AMDK8)
 /* Someone messed up and snuck in some K8-specific code */
 static int  set_ht_link_buffer_counts_chain(uint8_t ht_c_num, unsigned vendorid, unsigned val) { return 0; /* stub */};
+#else
+# include <northbridge/amd/amdk8/ht.h>
+# include <northbridge/amd/amdk8/reset_test.h>
 #endif
 
 static int set_ht_link_ck804(u8 ht_c_num)

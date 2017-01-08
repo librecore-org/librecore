@@ -17,6 +17,8 @@
 #include <reset.h>
 #include "ck804.h"
 
+extern void set_bios_reset(void);
+
 static int set_ht_link_ck804(u8 ht_c_num)
 {
 	unsigned vendorid = 0x10de;

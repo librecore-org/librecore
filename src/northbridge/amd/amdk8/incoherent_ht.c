@@ -3,15 +3,16 @@
 	2004.12 yhlu add multi ht chain dynamically support
 	2005.11 yhlu add let real sb to use small unitid
 */
+#include "ht.h"
+#include <cpu/amd/model_fxx_rev.h>
 #include <device/pci_def.h>
 #include <device/pci_ids.h>
 #include <device/hypertransport_def.h>
+#include <console/console.h>
 #include <lib.h>
+#include "amdk8.h"
 
-// Do we need allocate MMIO? Current We direct last 64M to sblink only, We can not lose access to last 4M range to ROM
-#ifndef K8_ALLOCATE_MMIO_RANGE
-	#define K8_ALLOCATE_MMIO_RANGE 0
-#endif
+extern unsigned int get_sbdn(unsigned bus);
 
 static inline void print_linkn_in (const char *strval, uint8_t byteval)
 {
@@ -527,7 +528,7 @@ static int optimize_link_read_pointers_chain(uint8_t ht_c_num)
 }
 
 #if CONFIG_SOUTHBRIDGE_NVIDIA_CK804 // || CONFIG_SOUTHBRIDGE_NVIDIA_MCP55
-static int set_ht_link_buffer_count(uint8_t node, uint8_t linkn, uint8_t linkt, unsigned val)
+int set_ht_link_buffer_count(uint8_t node, uint8_t linkn, uint8_t linkt, unsigned val)
 {
 	uint32_t dword;
 	uint8_t link_type;
@@ -553,7 +554,7 @@ static int set_ht_link_buffer_count(uint8_t node, uint8_t linkn, uint8_t linkt, 
 	return 0;
 }
 
-static int set_ht_link_buffer_counts_chain(uint8_t ht_c_num, unsigned vendorid,  unsigned val)
+int set_ht_link_buffer_counts_chain(uint8_t ht_c_num, unsigned vendorid,  unsigned val)
 {
 	int reset_needed;
 	uint8_t i;
@@ -649,12 +650,10 @@ static int ht_setup_chains(uint8_t ht_c_num)
 
 }
 
-static inline unsigned get_nodes(void);
-
 #if CONFIG_RAMINIT_SYSINFO
-static void ht_setup_chains_x(struct sys_info *sysinfo)
+void ht_setup_chains_x(struct sys_info *sysinfo)
 #else
-static int ht_setup_chains_x(void)
+int ht_setup_chains_x(void)
 #endif
 {
 	uint8_t nodeid;
@@ -790,7 +789,7 @@ static int ht_setup_chains_x(void)
 }
 
 #if CONFIG_RAMINIT_SYSINFO
-static int optimize_link_incoherent_ht(struct sys_info *sysinfo)
+int optimize_link_incoherent_ht(struct sys_info *sysinfo)
 {
 	// We need to use recorded link pair info to optimize the link
 	int i;

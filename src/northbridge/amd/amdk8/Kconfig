@@ -32,7 +32,7 @@ config K8_HT_FREQ_1G_SUPPORT
 
 config RAMINIT_SYSINFO
 	bool
-	default n
+	default y
 
 config WAIT_BEFORE_CPUS_INIT
 	bool

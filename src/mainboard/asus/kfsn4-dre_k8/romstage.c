@@ -29,40 +29,38 @@ unsigned int get_sbdn(unsigned bus);
 #include <console/console.h>
 #include <timestamp.h>
 #include <cpu/amd/model_fxx_rev.h>
-#include "southbridge/nvidia/ck804/early_smbus.h"
+#include <southbridge/nvidia/ck804/early_smbus.h>
 #include <reset.h>
+#include <cpu/amd/model_fxx/init_cpus.h>
 #include <northbridge/amd/amdk8/raminit.h>
-#include "northbridge/amd/amdk8/reset_test.c"
+#include <northbridge/amd/amdk8/early_ht.h>
 #include <cpu/x86/bist.h>
+#include <cpu/x86/lapic.h>
 #include <delay.h>
-#include "northbridge/amd/amdk8/debug.c"
 #include <cpu/amd/mtrr.h>
+#include <cpu/amd/car.h>
 #include <superio/winbond/common/winbond.h>
 #include <superio/winbond/w83627thg/w83627thg.h>
 #include "northbridge/amd/amdk8/setup_resource_map.c"
+#include <cbmem.h>
 
 #define SERIAL_DEV PNP_DEV(0x2e, W83627THG_SP1)
 
-static void memreset(int controllers, const struct mem_controller *ctrl) { }
+extern struct sys_info sysinfo_car;
 
-static void activate_spd_rom(const struct mem_controller *ctrl);
+void memreset(int controllers, const struct mem_controller *ctrl) { }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+void activate_spd_rom(const struct mem_controller *ctrl);
+
+int spd_read_byte(unsigned device, unsigned address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include <northbridge/amd/amdk8/amdk8.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
-#include "northbridge/amd/amdk8/raminit_f.c"
 #include "lib/generic_sdram.c"
 #include "resourcemap.c"
 #include "cpu/amd/dualcore/dualcore.c"
 #include <spd.h>
-#include "cpu/amd/model_fxx/init_cpus.c"
-#include "cpu/amd/model_fxx/fidvid.c"
-#include "northbridge/amd/amdk8/early_ht.c"
 
 #define CK804_MB_SETUP \
 	RES_PORT_IO_8, SYSCTRL_IO_BASE + 0xc0+33, ~(0x0f),(0x04 | 0x01),	/* -ENOINFO Proprietary BIOS sets this register; "When in Rome..."*/
@@ -180,7 +178,7 @@ static const uint16_t spd_addr[] = {
 	RC01 | DIMM0, RC01 | DIMM2, RC01 | DIMM4, RC01 | DIMM6, RC01 | DIMM1, RC01 | DIMM3, RC01 | DIMM5, RC01 | DIMM7,
 };
 
-static void activate_spd_rom(const struct mem_controller *ctrl) {
+void activate_spd_rom(const struct mem_controller *ctrl) {
 	printk(BIOS_DEBUG, "activate_spd_rom() for node %02x\n", ctrl->node_id);
 	if (ctrl->node_id == 0) {
 		printk(BIOS_DEBUG, "enable_spd_node0()\n");

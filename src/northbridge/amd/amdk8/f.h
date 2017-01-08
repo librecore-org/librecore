@@ -456,6 +456,7 @@ that are corresponding to 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x10, 
 #define NonCoherent       (1 << 2)
 #define ConnectionPending (1 << 4)
 
+#include <console/console.h>
 #include "raminit.h"
 //struct definitions
 
@@ -517,11 +518,6 @@ struct sys_info {
 	uint32_t sblk;
 	uint32_t sbbusn;
 } __attribute__((packed));
-
-#ifdef __PRE_RAM__
-#include <arch/early_variables.h>
-struct sys_info sysinfo_car CAR_GLOBAL;
-#endif
 
 #include <reset.h>
 

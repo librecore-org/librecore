@@ -1,3 +1,6 @@
+#ifndef MODEL_FXX_REV_H
+#define MODEL_FXX_REV_H
+
 #include <arch/cpu.h>
 
 int init_processor_name(void);
@@ -121,5 +124,7 @@ static inline int is_cpu_pre_f2_in_bsp(int nodeid)
 
 int is_e0_later_in_bsp(int nodeid);
 int is_cpu_f0_in_bsp(int nodeid);
+
+#endif
 
 #endif

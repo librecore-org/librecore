@@ -262,9 +262,4 @@ struct sys_info {
 	uint32_t sbbusn;
 } __attribute__((packed));
 
-#ifdef __PRE_RAM__
-#include <arch/early_variables.h>
-struct sys_info sysinfo_car CAR_GLOBAL;
-#endif
-
 #endif /* AMDK8_PRE_F_H */

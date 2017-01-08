@@ -1,13 +1,10 @@
 #include <stdint.h>
 #include <cpu/x86/lapic.h>
-#define NODE_ID		0x60
-#define	HT_INIT_CONTROL 0x6c
+#include <arch/io.h>
+#include <device/pci_def.h>
+#include "reset_test.h"
 
-#define HTIC_ColdR_Detect  (1<<4)
-#define HTIC_BIOSR_Detect  (1<<5)
-#define HTIC_INIT_Detect   (1<<6)
-
-static inline int cpu_init_detected(unsigned nodeid)
+int cpu_init_detected(unsigned nodeid)
 {
 	u32 htic;
 	pci_devfn_t dev;
@@ -18,7 +15,7 @@ static inline int cpu_init_detected(unsigned nodeid)
 	return !!(htic & HTIC_INIT_Detect);
 }
 
-static inline int bios_reset_detected(void)
+int bios_reset_detected(void)
 {
 	u32 htic;
 	htic = pci_read_config32(PCI_DEV(0, 0x18, 0), HT_INIT_CONTROL);
@@ -26,7 +23,7 @@ static inline int bios_reset_detected(void)
 	return (htic & HTIC_ColdR_Detect) && !(htic & HTIC_BIOSR_Detect);
 }
 
-static inline int cold_reset_detected(void)
+int cold_reset_detected(void)
 {
 	u32 htic;
 	htic = pci_read_config32(PCI_DEV(0, 0x18, 0), HT_INIT_CONTROL);
@@ -34,7 +31,7 @@ static inline int cold_reset_detected(void)
 	return !(htic & HTIC_ColdR_Detect);
 }
 
-static inline void distinguish_cpu_resets(unsigned nodeid)
+void distinguish_cpu_resets(unsigned nodeid)
 {
 	u32 htic;
 	pci_devfn_t device;
@@ -44,7 +41,6 @@ static inline void distinguish_cpu_resets(unsigned nodeid)
 	pci_write_config32(device, HT_INIT_CONTROL, htic);
 }
 
-void set_bios_reset(void);
 void set_bios_reset(void)
 {
 	u32 htic;
@@ -53,7 +49,7 @@ void set_bios_reset(void)
 	pci_write_config32(PCI_DEV(0, 0x18, 0), HT_INIT_CONTROL, htic);
 }
 
-static unsigned node_link_to_bus(unsigned node, unsigned link)
+unsigned node_link_to_bus(unsigned node, unsigned link)
 {
 	u8 reg;
 
@@ -72,7 +68,7 @@ static unsigned node_link_to_bus(unsigned node, unsigned link)
 	return 0;
 }
 
-static inline unsigned get_sblk(void)
+unsigned get_sblk(void)
 {
 	u32 reg;
 	/* read PCI_DEV(0,0x18,0) 0x64 bit [8:9] to find out SbLink m */
@@ -80,7 +76,7 @@ static inline unsigned get_sblk(void)
 	return ((reg>>8) & 3);
 }
 
-static inline unsigned get_sbbusn(unsigned sblk)
+unsigned get_sbbusn(unsigned sblk)
 {
 	return node_link_to_bus(0, sblk);
 }

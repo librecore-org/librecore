@@ -7,19 +7,22 @@
 #include <pc80/mc146818rtc.h>
 #include <console/console.h>
 #include <cpu/amd/model_fxx_rev.h>
-#include "southbridge/amd/amd8111/early_smbus.c"
+#include <cpu/amd/model_fxx/init_cpus.h>
+#include <cpu/amd/car.h>
 #include <northbridge/amd/amdk8/raminit.h>
-#include "northbridge/amd/amdk8/reset_test.c"
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/reset_test.h>
 #include <cpu/x86/bist.h>
 #include <delay.h>
-#include "northbridge/amd/amdk8/debug.c"
 #include <superio/winbond/common/winbond.h>
 #include <superio/winbond/w83627hf/w83627hf.h>
+#include <spd.h>
 #include "northbridge/amd/amdk8/setup_resource_map.c"
+#include "southbridge/amd/amd8111/early_smbus.c"
+#include "southbridge/amd/amd8111/early_ctrl.c"
 
 #define SERIAL_DEV PNP_DEV(0x2e, W83627HF_SP1)
-
-unsigned get_sbdn(unsigned bus);
 
 /*
  * GPIO28 of 8111 will control H0_MEMRESET_L
@@ -38,7 +41,7 @@ static void memreset_setup(void)
 	}
 }
 
-static void memreset(int controllers, const struct mem_controller *ctrl)
+void memreset(int controllers, const struct mem_controller *ctrl)
 {
 	if (is_cpu_pre_c0()) {
 		udelay(800);
@@ -48,24 +51,16 @@ static void memreset(int controllers, const struct mem_controller *ctrl)
 	}
 }
 
-static void activate_spd_rom(const struct mem_controller *ctrl) { }
+void activate_spd_rom(const struct mem_controller *ctrl) { }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+int spd_read_byte(unsigned device, unsigned address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include "southbridge/amd/amd8111/early_ctrl.c"
-#include <northbridge/amd/amdk8/amdk8.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
-#include "northbridge/amd/amdk8/raminit.c"
 #include "lib/generic_sdram.c"
 #include "resourcemap.c"
 #include "cpu/amd/dualcore/dualcore.c"
-#include <spd.h>
-#include "cpu/amd/model_fxx/init_cpus.c"
-#include "cpu/amd/model_fxx/fidvid.c"
 
 void cache_as_ram_main(unsigned long bist, unsigned long cpu_init_detectedx)
 {

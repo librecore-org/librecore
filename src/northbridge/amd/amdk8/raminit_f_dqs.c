@@ -15,8 +15,25 @@
 */
 
 #include <arch/stages.h>
+#include <arch/early_variables.h>
 #include <cpu/x86/cr.h>
 #include <cpu/x86/mtrr.h>
+#include <cpu/amd/msr.h>
+#include <cpu/amd/mtrr.h>
+#include <cpu/x86/tsc.h>
+#include <arch/io.h>
+#include <string.h>
+#include <stdlib.h>
+#include <console/console.h>
+#include "raminit.h"
+#include <northbridge/amd/amdk8/amdk8.h>
+#include "f.h"
+#include "f_pci.h"
+#include "debug.h"
+#include "reset_test.h"
+
+extern int s3_save_nvram_early(u32 dword, int size, int  nvram_pos);
+extern int s3_load_nvram_early(int size, u32 *old_dword, int nvram_pos);
 
 //0: mean no debug info
 #define DQS_TRAIN_DEBUG 0
@@ -1690,7 +1707,7 @@ static void set_top_mem_ap(unsigned tom_k, unsigned tom2_k)
 }
 #endif
 
-static void setup_mtrr_dqs(unsigned tom_k, unsigned tom2_k)
+void setup_mtrr_dqs(unsigned tom_k, unsigned tom2_k)
 {
 	msr_t msr;
 
@@ -1713,7 +1730,7 @@ static void setup_mtrr_dqs(unsigned tom_k, unsigned tom2_k)
 
 }
 
-static void clear_mtrr_dqs(unsigned tom2_k)
+void clear_mtrr_dqs(unsigned tom2_k)
 {
 	msr_t msr;
 	unsigned i;
@@ -1769,7 +1786,7 @@ static void wait_till_sysinfo_in_ram(void)
 }
 #endif
 
-static void set_sysinfo_in_ram(unsigned val)
+void set_sysinfo_in_ram(unsigned val)
 {
 #if CONFIG_MEM_TRAIN_SEQ == 1
 	set_htic_bit(0, val, 9);
@@ -1848,7 +1865,7 @@ static void dqs_save_MC_NVRAM(unsigned int dev)
 }
 #endif
 
-static void dqs_restore_MC_NVRAM(unsigned int dev)
+void dqs_restore_MC_NVRAM(unsigned int dev)
 {
 	int pos = 0;
 	u32 reg;
@@ -1864,11 +1881,10 @@ static void dqs_restore_MC_NVRAM(unsigned int dev)
 }
 #endif
 
-#if CONFIG_MEM_TRAIN_SEQ == 0
 #if K8_REV_F_SUPPORT_F0_F1_WORKAROUND == 1
-static void dqs_timing(int controllers, const struct mem_controller *ctrl, tsc_t *tsc0, struct sys_info *sysinfo)
+void dqs_timing(int controllers, const struct mem_controller *ctrl, tsc_t *tsc0, struct sys_info *sysinfo)
 #else
-static void dqs_timing(int controllers, const struct mem_controller *ctrl, struct sys_info *sysinfo)
+void dqs_timing(int controllers, const struct mem_controller *ctrl, struct sys_info *sysinfo)
 #endif
 {
 	int i;
@@ -1949,12 +1965,9 @@ out:
 
 }
 
-#endif
-
-
 #if CONFIG_MEM_TRAIN_SEQ > 0
 
-static void dqs_timing(int i, const struct mem_controller *ctrl, struct sys_info *sysinfo, unsigned v)
+static void dqs_timing2(int i, const struct mem_controller *ctrl, struct sys_info *sysinfo, unsigned v)
 {
 
 	int ii;
@@ -2029,12 +2042,12 @@ out:
 #if CONFIG_MEM_TRAIN_SEQ == 1
 static void train_ram(unsigned nodeid, struct sys_info *sysinfo, struct sys_info *sysinfox)
 {
-	dqs_timing(nodeid, &sysinfo->ctrl[nodeid], sysinfo, 0); // keep the output tidy
+	dqs_timing2(nodeid, &sysinfo->ctrl[nodeid], sysinfo, 0); // keep the output tidy
 	sysinfox->mem_trained[nodeid] = sysinfo->mem_trained[nodeid];
 
 }
 
-static inline void train_ram_on_node(unsigned nodeid, unsigned coreid, struct sys_info *sysinfo, unsigned retcall)
+void train_ram_on_node(unsigned nodeid, unsigned coreid, struct sys_info *sysinfo, unsigned retcall)
 {
 	if (coreid) return; // only do it on core0
 	struct sys_info *sysinfox;

@@ -24,21 +24,25 @@
 #include <lib.h>
 #include <spd.h>
 #include <cpu/amd/model_fxx_rev.h>
-#include "southbridge/nvidia/mcp55/early_smbus.c" // for enable the FAN
+#include <cpu/amd/model_fxx/init_cpus.h>
+#include <cpu/amd/car.h>
 #include <northbridge/amd/amdk8/raminit.h>
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/reset_test.h>
 #include <delay.h>
 #include <cpu/x86/lapic.h>
-#include "northbridge/amd/amdk8/reset_test.c"
 #include <superio/winbond/common/winbond.h>
 #include <superio/winbond/w83627hf/w83627hf.h>
+#include <southbridge/nvidia/mcp55/early_setup_ss.h>
 #include <cpu/x86/bist.h>
-#include "northbridge/amd/amdk8/debug.c"
 #include "northbridge/amd/amdk8/setup_resource_map.c"
+#include "southbridge/nvidia/mcp55/early_smbus.c" // for enable the FAN
+#include "southbridge/nvidia/mcp55/early_ctrl.c"
+#include "southbridge/nvidia/mcp55/early_setup_car.c"
 
 #define SERIAL_DEV PNP_DEV(0x2e, W83627HF_SP1)
 #define DUMMY_DEV PNP_DEV(0x2e, 0)
-
-unsigned get_sbdn(unsigned bus);
 
 unsigned get_sbdn(unsigned bus)
 {
@@ -51,9 +55,9 @@ unsigned get_sbdn(unsigned bus)
 	return (dev >> 15) & 0x1f;
 }
 
-static void memreset(int controllers, const struct mem_controller *ctrl) { }
+void memreset(int controllers, const struct mem_controller *ctrl) { }
 
-static inline void activate_spd_rom(const struct mem_controller *ctrl)
+void activate_spd_rom(const struct mem_controller *ctrl)
 {
 #if 0
 /* We don't do any switching yet. */
@@ -65,24 +69,14 @@ static inline void activate_spd_rom(const struct mem_controller *ctrl)
 #endif
 }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+int spd_read_byte(unsigned device, unsigned address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include "southbridge/nvidia/mcp55/early_ctrl.c"
-#include <northbridge/amd/amdk8/f.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
-#include "northbridge/amd/amdk8/raminit_f.c"
 #include "lib/generic_sdram.c"
 #include "resourcemap.c"
 #include "cpu/amd/dualcore/dualcore.c"
-#include <southbridge/nvidia/mcp55/early_setup_ss.h>
-#include "southbridge/nvidia/mcp55/early_setup_car.c"
-#include "cpu/amd/model_fxx/init_cpus.c"
-#include "cpu/amd/model_fxx/fidvid.c"
-#include "northbridge/amd/amdk8/early_ht.c"
 
 static void sio_setup(void)
 {

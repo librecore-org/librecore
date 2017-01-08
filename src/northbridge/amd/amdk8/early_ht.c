@@ -1,8 +1,13 @@
+#include <arch/io.h>
+#include <device/pci_def.h>
+#include "early_ht.h"
+
 /*
 	2005.11 yhlu add let the real sb to use small unitid
 */
+
 // only for sb ht chain
-static void enumerate_ht_chain(void)
+void enumerate_ht_chain(void)
 {
 #if CONFIG_HT_CHAIN_UNITID_BASE != 0
 /* CONFIG_HT_CHAIN_UNITID_BASE could be 0 (only one ht device in the ht chain), if so, don't need to go through the chain  */

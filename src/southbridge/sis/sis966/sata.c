@@ -133,9 +133,10 @@ uint32_t temp32;
 for (i=0;i<10;i++) {
 	temp32=0;
 	temp32= pci_read_config32(dev, 0xC0);
-	for ( j=0;j<0xFFFF;j++);
+	for ( j=0;j<0xFFFF;j++) {
 		printk(BIOS_DEBUG, "status= %x\n",temp32);
 		if (((temp32&0xF) == 0x3) || ((temp32&0xF) == 0x0)) break;
+	}
 }
 
 }

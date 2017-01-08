@@ -28,34 +28,33 @@
 #include <console/console.h>
 #include <spd.h>
 #include <cpu/amd/model_fxx_rev.h>
+#include <cpu/amd/model_fxx/init_cpus.h>
+#include <cpu/amd/car.h>
 #include <southbridge/sis/sis966/sis966.h>
-#include "southbridge/sis/sis966/early_smbus.c"
+#include <southbridge/sis/sis966/early_setup_ss.h>
 #include <northbridge/amd/amdk8/raminit.h>
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/reset_test.h>
 #include <delay.h>
-#include <cpu/x86/lapic.h>
-#include "northbridge/amd/amdk8/reset_test.c"
 #include <superio/ite/common/ite.h>
 #include <superio/ite/it8716f/it8716f.h>
 #include <cpu/x86/bist.h>
-#include "northbridge/amd/amdk8/debug.c"
 #include "northbridge/amd/amdk8/setup_resource_map.c"
+#include "southbridge/sis/sis966/early_smbus.c"
 #include "southbridge/sis/sis966/early_ctrl.c"
 
 #define SERIAL_DEV PNP_DEV(0x2e, IT8716F_SP1)
 #define CLKIN_DEV PNP_DEV(0x2e, IT8716F_GPIO)
 
-static void memreset(int controllers, const struct mem_controller *ctrl) { }
-static void activate_spd_rom(const struct mem_controller *ctrl) { }
+void memreset(int controllers, const struct mem_controller *ctrl) { }
+void activate_spd_rom(const struct mem_controller *ctrl) { }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+int spd_read_byte(unsigned device, unsigned address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include <northbridge/amd/amdk8/f.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
-#include "northbridge/amd/amdk8/raminit_f.c"
 #include "lib/generic_sdram.c"
 #include "resourcemap.c"
 #include "cpu/amd/dualcore/dualcore.c"
@@ -73,11 +72,6 @@ static inline int spd_read_byte(unsigned device, unsigned address)
 	RES_PORT_IO_8, SYSCTRL_IO_BASE + 0xc0+40, 0x00, 0x44,/* GPIO41 PCI_REQ2 */ \
 	RES_PORT_IO_8, SYSCTRL_IO_BASE + 0xc0+59, 0x00, 0x60,/* GPIP60 FANCTL0 */ \
 	RES_PORT_IO_8, SYSCTRL_IO_BASE + 0xc0+60, 0x00, 0x60,/* GPIO61 FANCTL1 */
-
-#include <southbridge/sis/sis966/early_setup_ss.h>
-#include "cpu/amd/model_fxx/init_cpus.c"
-#include "cpu/amd/model_fxx/fidvid.c"
-#include "northbridge/amd/amdk8/early_ht.c"
 
 static void sio_setup(void)
 {

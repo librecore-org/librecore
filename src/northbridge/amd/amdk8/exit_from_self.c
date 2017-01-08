@@ -13,7 +13,15 @@
  * GNU General Public License for more details.
  */
 
+#include <inttypes.h>
+#include <arch/io.h>
+#include <device/pci_def.h>
+#include <cpu/amd/mtrr.h>
+#include <cpu/amd/msr.h>
+#include <cpu/x86/lapic.h>
 #include "raminit.h"
+#include "amdk8.h"
+#include <delay.h>
 
 void exit_from_self(int controllers, const struct mem_controller *ctrl,
 		    struct sys_info *sysinfo)

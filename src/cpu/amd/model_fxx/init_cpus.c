@@ -11,11 +11,20 @@
  * GNU General Public License for more details.
  */
 
-#include "cpu/amd/car/post_cache_as_ram.c"
-
+#include "init_cpus.h"
+#include <northbridge/amd/amdk8/amdk8.h>
+#include <northbridge/amd/amdk8/raminit.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/f.h>
+#include <northbridge/amd/amdk8/reset_test.h>
+#include <cpu/amd/multicore.h>
+#include <cpu/amd/model_fxx_rev.h>
+#include <cpu/x86/lapic.h>
+#include <pc80/mc146818rtc.h>
 #if CONFIG_HAVE_OPTION_TABLE
 #include "option_table.h"
 #endif
+#include "cpu/amd/car/post_cache_as_ram.c"
 
 typedef void (*process_ap_t) (u32 apicid, void *gp);
 
@@ -23,8 +32,8 @@ typedef void (*process_ap_t) (u32 apicid, void *gp);
 //core range = 1 : core 0 only
 //core range = 2 : cores other than core0
 
-static void for_each_ap(u32 bsp_apicid, u32 core_range, process_ap_t process_ap,
-			void *gp)
+void for_each_ap(u32 bsp_apicid, u32 core_range, process_ap_t process_ap,
+		void *gp)
 {
 	// here assume the OS don't change our apicid
 	u32 ap_apicid;
@@ -103,7 +112,7 @@ static void for_each_ap(u32 bsp_apicid, u32 core_range, process_ap_t process_ap,
 	}
 }
 
-static inline int lapic_remote_read(int apicid, int reg, u32 *pvalue)
+int lapic_remote_read(int apicid, int reg, u32 *pvalue)
 {
 	int timeout;
 	u32 status;
@@ -134,10 +143,6 @@ static inline int lapic_remote_read(int apicid, int reg, u32 *pvalue)
 
 #define LAPIC_MSG_REG 0x380
 
-#if CONFIG_SET_FIDVID
-static void init_fidvid_ap(u32 bsp_apicid, u32 apicid);
-#endif
-
 static inline __attribute__ ((always_inline))
 void print_apicid_nodeid_coreid(u32 apicid, struct node_core_id id,
 				const char *str)
@@ -147,7 +152,7 @@ void print_apicid_nodeid_coreid(u32 apicid, struct node_core_id id,
 	       apicid, id.nodeid, id.coreid);
 }
 
-static u32 wait_cpu_state(u32 apicid, u32 state)
+u32 wait_cpu_state(u32 apicid, u32 state)
 {
 	u32 readback = 0;
 	u32 timeout = 1;
@@ -218,9 +223,9 @@ static void STOP_CAR_AND_CPU(void)
 }
 
 #if CONFIG_RAMINIT_SYSINFO
-static u32 init_cpus(u32 cpu_init_detectedx, struct sys_info *sysinfo)
+u32 init_cpus(u32 cpu_init_detectedx, struct sys_info *sysinfo)
 #else
-static u32 init_cpus(u32 cpu_init_detectedx)
+u32 init_cpus(u32 cpu_init_detectedx)
 #endif
 {
 	u32 bsp_apicid = 0;

@@ -18,6 +18,8 @@
 #include "sb600.h"
 #include "smbus.c"
 
+extern void set_bios_reset(void);
+
 #define SMBUS_IO_BASE 0x1000	/* Is it a temporary SMBus I/O base address? */
 	 /*SIZE 0x40 */
 
@@ -100,7 +102,7 @@ static void sb600_lpc_init(void)
 }
 
 /* what is its usage? */
-static u32 get_sbdn(u32 bus)
+u32 get_sbdn(u32 bus)
 {
 	pci_devfn_t dev;
 

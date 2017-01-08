@@ -1,3 +1,12 @@
+#include "init_cpus.h"
+#include <stdint.h>
+#include <cpu/x86/msr.h>
+#include <cpu/amd/msr.h>
+#include <arch/io.h>
+#include <device/pci_def.h>
+#include <cpu/x86/lapic.h>
+#include <console/console.h>
+
 #if CONFIG_SET_FIDVID
 
 #ifndef SB_VFSMAF
@@ -27,7 +36,7 @@ static inline void print_debug_fv_64(const char *str, u32 val, u32 val2)
 #endif
 }
 
-static void enable_fid_change(void)
+void enable_fid_change(void)
 {
 	u32 dword;
 	u32 nodes;
@@ -345,7 +354,7 @@ static u32 set_fidvid(unsigned apicid, unsigned fidvid, int showmessage)
 
 }
 
-static void init_fidvid_ap(unsigned bsp_apicid, unsigned apicid)
+void init_fidvid_ap(unsigned bsp_apicid, unsigned apicid)
 {
 	u32 send;
 	u32 readback = 0;
@@ -523,7 +532,7 @@ static void store_ap_apicid(unsigned ap_apicid, void *gp)
 }
 #endif
 
-static void init_fidvid_bsp(unsigned bsp_apicid)
+void init_fidvid_bsp(unsigned bsp_apicid)
 {
 	u32 vid_max;
 	u32 fid_max;

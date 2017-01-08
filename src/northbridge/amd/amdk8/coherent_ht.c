@@ -63,11 +63,14 @@
 			CPU1-------------CPU0
  */
 
+#include "ht.h"
 #include <device/pci_def.h>
 #include <device/pci_ids.h>
+#include <cpu/amd/model_fxx_rev.h>
 #include <device/hypertransport_def.h>
 #include <lib.h>
 #include <stdlib.h>
+#include <console/console.h>
 #include <arch/io.h>
 #include <pc80/mc146818rtc.h>
 #if CONFIG_HAVE_OPTION_TABLE
@@ -75,35 +78,6 @@
 #endif
 
 #include "amdk8.h"
-
-#define enable_bsp_routing()	enable_routing(0)
-
-#define NODE_HT(x) PCI_DEV(0,24+x,0)
-#define NODE_MP(x) PCI_DEV(0,24+x,1)
-#define NODE_MC(x) PCI_DEV(0,24+x,3)
-
-#define DEFAULT 0x00010101	/* default row entry */
-
-
-#ifndef CROSS_BAR_47_56
-	#define CROSS_BAR_47_56 0
-#endif
-
-#ifndef TRY_HIGH_FIRST
-	#define TRY_HIGH_FIRST 0
-#endif
-
-#ifndef K8_HT_CHECK_PENDING_LINK
-	#if CONFIG_MAX_PHYSICAL_CPUS >= 4
-		#define K8_HT_CHECK_PENDING_LINK 1
-	#else
-		#define K8_HT_CHECK_PENDING_LINK 0
-	#endif
-#endif
-
-#ifndef CONFIG_MAX_PHYSICAL_CPUS_4_BUT_MORE_INSTALLED
-	#define CONFIG_MAX_PHYSICAL_CPUS_4_BUT_MORE_INSTALLED 0
-#endif
 
 static inline void print_linkn (const char *strval, uint8_t byteval)
 {
@@ -1703,12 +1677,12 @@ static int optimize_link_read_pointers(unsigned nodes)
 	return needs_reset;
 }
 
-static inline unsigned get_nodes(void)
+unsigned get_nodes(void)
 {
 	return ((pci_read_config32(PCI_DEV(0, 0x18, 0), 0x60)>>4) & 7) + 1;
 }
 
-static int optimize_link_coherent_ht(void)
+int optimize_link_coherent_ht(void)
 {
 	int needs_reset = 0;
 
@@ -1772,9 +1746,9 @@ static int optimize_link_coherent_ht(void)
 }
 
 #if CONFIG_RAMINIT_SYSINFO
-static void setup_coherent_ht_domain(void)
+void setup_coherent_ht_domain(void)
 #else
-static int setup_coherent_ht_domain(void)
+int setup_coherent_ht_domain(void)
 #endif
 {
 	unsigned nodes;

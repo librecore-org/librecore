@@ -11,19 +11,21 @@
 #include <pc80/mc146818rtc.h>
 #include <console/console.h>
 #include <cpu/amd/model_fxx_rev.h>
+#include <cpu/amd/model_fxx/init_cpus.h>
+#include <cpu/amd/car.h>
 #include <delay.h>
-#include <northbridge/amd/amdk8/amdk8.h>
-#include "southbridge/amd/amd8111/early_smbus.c"
 #include <northbridge/amd/amdk8/raminit.h>
-#include "northbridge/amd/amdk8/reset_test.c"
-#include "northbridge/amd/amdk8/debug.c"
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/reset_test.h>
 #include <superio/winbond/common/winbond.h>
 #include <superio/winbond/w83627hf/w83627hf.h>
 #include <cpu/x86/bist.h>
+#include <spd.h>
+#include "southbridge/amd/amd8111/early_smbus.c"
+#include "southbridge/amd/amd8111/early_ctrl.c"
 
 #define SERIAL_DEV PNP_DEV(0x2e, W83627HF_SP1)
-
-unsigned get_sbdn(unsigned bus);
 
 static void memreset_setup(void)
 {
@@ -38,7 +40,7 @@ static void memreset_setup(void)
 	}
 }
 
-static void memreset(int controllers, const struct mem_controller *ctrl)
+void memreset(int controllers, const struct mem_controller *ctrl)
 {
 	if (is_cpu_pre_c0()) {
 		udelay(800);
@@ -50,7 +52,7 @@ static void memreset(int controllers, const struct mem_controller *ctrl)
 
 #define SMBUS_HUB 0x18
 
-static inline void activate_spd_rom(const struct mem_controller *ctrl)
+void activate_spd_rom(const struct mem_controller *ctrl)
 {
 	int ret,i;
 	unsigned device=(ctrl->channel0[0])>>8;
@@ -75,23 +77,14 @@ static inline void change_i2c_mux(unsigned device)
 	printk(BIOS_DEBUG, "change_i2c_mux 2 ret=%08x\n", ret);
 }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+int spd_read_byte(unsigned device, unsigned address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include "southbridge/amd/amd8111/early_ctrl.c"
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/raminit.c"
 #include "resourcemap.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
 #include "lib/generic_sdram.c"
 #include "cpu/amd/dualcore/dualcore.c"
-#include <spd.h>
-#include "cpu/amd/model_fxx/init_cpus.c"
-#if CONFIG_SET_FIDVID
-#include "cpu/amd/model_fxx/fidvid.c"
-#endif
 
 #define RC0 ((1 << 1)<<8)
 #define RC1 ((1 << 2)<<8)

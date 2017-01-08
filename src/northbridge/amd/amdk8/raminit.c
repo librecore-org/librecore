@@ -7,6 +7,8 @@
 #include <cpu/x86/cache.h>
 #include <cpu/x86/mtrr.h>
 #include <cpu/amd/mtrr.h>
+#include <arch/io.h>
+#include <device/pci_def.h>
 #include <lib.h>
 #include <stdlib.h>
 #include <arch/acpi.h>
@@ -15,6 +17,11 @@
 #include "amdk8.h"
 #if CONFIG_HAVE_OPTION_TABLE
 #include "option_table.h"
+#endif
+
+#ifdef __PRE_RAM__
+#include <arch/early_variables.h>
+struct sys_info sysinfo_car CAR_GLOBAL;
 #endif
 
 void setup_resource_map(const unsigned int *register_values, int max)
@@ -39,9 +46,9 @@ static int controller_present(const struct mem_controller *ctrl)
 }
 
 #if CONFIG_RAMINIT_SYSINFO
-static void sdram_set_registers(const struct mem_controller *ctrl, struct sys_info *sysinfo)
+void sdram_set_registers(const struct mem_controller *ctrl, struct sys_info *sysinfo)
 #else
-static void sdram_set_registers(const struct mem_controller *ctrl)
+void sdram_set_registers(const struct mem_controller *ctrl)
 #endif
 {
 	static const unsigned int register_values[] = {
@@ -2322,7 +2329,6 @@ static void set_hw_mem_hole(int controllers, const struct mem_controller *ctrl)
 
 #endif
 
-#define TIMEOUT_LOOPS 300000
 #if CONFIG_RAMINIT_SYSINFO
 static void sdram_enable(int controllers, const struct mem_controller *ctrl, struct sys_info *sysinfo)
 #else

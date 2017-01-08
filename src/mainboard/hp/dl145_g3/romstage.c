@@ -31,25 +31,27 @@
 #include <pc80/mc146818rtc.h>
 #include <console/console.h>
 #include <cpu/amd/model_fxx_rev.h>
-#include "southbridge/broadcom/bcm5785/early_smbus.c"
+#include <cpu/amd/model_fxx/init_cpus.h>
+#include <cpu/amd/car.h>
 #include <northbridge/amd/amdk8/raminit.h>
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/reset_test.h>
 #include <delay.h>
-#include <cpu/x86/lapic.h>
-#include "northbridge/amd/amdk8/reset_test.c"
 #include <superio/serverengines/pilot/pilot.h>
 #include <superio/nsc/pc87417/pc87417.h>
 #include <cpu/x86/bist.h>
-#include "northbridge/amd/amdk8/debug.c"
+#include <spd.h>
 #include "northbridge/amd/amdk8/setup_resource_map.c"
+#include "southbridge/broadcom/bcm5785/early_smbus.c"
+#include "southbridge/broadcom/bcm5785/early_setup.c"
 
 #define SERIAL_DEV PNP_DEV(0x2e, PILOT_SP1)
 #define RTC_DEV PNP_DEV(0x4e, PC87417_RTC)
 
-unsigned get_sbdn(unsigned bus);
+void memreset(int controllers, const struct mem_controller *ctrl) { }
 
-static void memreset(int controllers, const struct mem_controller *ctrl) { }
-
-static inline void activate_spd_rom(const struct mem_controller *ctrl)
+void activate_spd_rom(const struct mem_controller *ctrl)
 {
 #define SMBUS_SWITCH1 0x70
 #define SMBUS_SWITCH2 0x72
@@ -58,22 +60,13 @@ static inline void activate_spd_rom(const struct mem_controller *ctrl)
 	 smbus_send_byte(SMBUS_SWITCH2, (device >> 4) & 0x0f );
 }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+int spd_read_byte(unsigned device, unsigned address)
 {
 	 return smbus_read_byte(device, address);
 }
 
-#include "southbridge/broadcom/bcm5785/early_setup.c"
-#include <northbridge/amd/amdk8/f.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
-#include "northbridge/amd/amdk8/raminit_f.c"
 #include "lib/generic_sdram.c"
-#include <spd.h>
 #include "cpu/amd/dualcore/dualcore.c"
-#include "cpu/amd/model_fxx/init_cpus.c"
-#include "cpu/amd/model_fxx/fidvid.c"
-#include "northbridge/amd/amdk8/early_ht.c"
 
 #if 0
 #include "ipmi.c"

@@ -1,4 +1,6 @@
 romstage-y += ../../x86/mtrr/earlymtrr.c
+romstage-y += init_cpus.c
+romstage-y += fidvid.c
 
 # no conditionals here. If you include this file from a socket, then you get all the binaries.
 ramstage-y += model_fxx_init.c

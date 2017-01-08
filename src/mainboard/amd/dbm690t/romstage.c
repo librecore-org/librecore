@@ -22,10 +22,14 @@
 #include <pc80/mc146818rtc.h>
 #include <console/console.h>
 #include <cpu/amd/model_fxx_rev.h>
+#include <cpu/amd/model_fxx/init_cpus.h>
+#include <cpu/amd/car.h>
+#include <cpu/amd/mtrr.h>
 #include <northbridge/amd/amdk8/raminit.h>
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
 #include <delay.h>
 #include <cpu/x86/lapic.h>
-#include "northbridge/amd/amdk8/reset_test.c"
 #include <superio/ite/common/ite.h>
 #include <superio/ite/it8712f/it8712f.h>
 #include <spd.h>
@@ -33,28 +37,20 @@
 #include "northbridge/amd/amdk8/setup_resource_map.c"
 #include "southbridge/amd/rs690/early_setup.c"
 #include "southbridge/amd/sb600/early_setup.c"
-#include "northbridge/amd/amdk8/debug.c" /* After sb600_early_setup.c! */
 
 #define SERIAL_DEV PNP_DEV(0x2e, IT8712F_SP1)
 
-static void memreset(int controllers, const struct mem_controller *ctrl) { }
-static void activate_spd_rom(const struct mem_controller *ctrl) { }
+void memreset(int controllers, const struct mem_controller *ctrl) { }
+void activate_spd_rom(const struct mem_controller *ctrl) { }
 
-static inline int spd_read_byte(u32 device, u32 address)
+int spd_read_byte(u32 device, u32 address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include <northbridge/amd/amdk8/amdk8.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/raminit_f.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
 #include "lib/generic_sdram.c"
 #include "resourcemap.c"
 #include "cpu/amd/dualcore/dualcore.c"
-#include "cpu/amd/model_fxx/init_cpus.c"
-#include "cpu/amd/model_fxx/fidvid.c"
-#include "northbridge/amd/amdk8/early_ht.c"
 
 void cache_as_ram_main(unsigned long bist, unsigned long cpu_init_detectedx)
 {

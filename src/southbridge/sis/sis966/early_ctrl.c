@@ -17,7 +17,7 @@
 
 #include <reset.h>
 
-static unsigned get_sbdn(unsigned bus)
+unsigned get_sbdn(unsigned bus)
 {
 	pci_devfn_t dev;
 

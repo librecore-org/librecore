@@ -22,27 +22,28 @@
 #include <string.h>
 #include <device/pci_def.h>
 #include <arch/io.h>
-#include <device/pnp_def.h>
+#include <device/pci_ids.h>
 #include <cpu/x86/lapic.h>
 #include <pc80/mc146818rtc.h>
 #include <console/console.h>
 #include <cpu/amd/model_fxx_rev.h>
-#include "southbridge/nvidia/mcp55/early_smbus.c"
+#include <cpu/amd/model_fxx/init_cpus.h>
+#include <cpu/amd/car.h>
 #include <northbridge/amd/amdk8/raminit.h>
+#include <northbridge/amd/amdk8/early_ht.h>
+#include <northbridge/amd/amdk8/ht.h>
+#include <northbridge/amd/amdk8/reset_test.h>
 #include <delay.h>
-#include <cpu/x86/lapic.h>
-#include "northbridge/amd/amdk8/reset_test.c"
-#include "northbridge/amd/amdk8/debug.c"
 #include <superio/winbond/common/winbond.h>
 #include <superio/winbond/w83627ehg/w83627ehg.h>
 #include <cpu/x86/bist.h>
 #include <spd.h>
 #include "northbridge/amd/amdk8/setup_resource_map.c"
-#include <device/pci_ids.h>
+#include <southbridge/nvidia/mcp55/early_setup_ss.h>
+#include "southbridge/nvidia/mcp55/early_smbus.c"
+#include "southbridge/nvidia/mcp55/early_ctrl.c"
 
 #define SERIAL_DEV PNP_DEV(0x2e, W83627EHG_SP1)
-
-unsigned get_sbdn(unsigned bus);
 
 unsigned get_sbdn(unsigned bus)
 {
@@ -55,9 +56,9 @@ unsigned get_sbdn(unsigned bus)
 	return (dev >> 15) & 0x1f;
 }
 
-static void memreset(int controllers, const struct mem_controller *ctrl) { }
+void memreset(int controllers, const struct mem_controller *ctrl) { }
 
-static inline void activate_spd_rom(const struct mem_controller *ctrl)
+void activate_spd_rom(const struct mem_controller *ctrl)
 {
 #define SMBUS_SWITCH1 0x70
 #define SMBUS_SWITCH2 0x72
@@ -66,20 +67,14 @@ static inline void activate_spd_rom(const struct mem_controller *ctrl)
 	smbus_send_byte(SMBUS_SWITCH2, (device >> 4) & 0x0f);
 }
 
-static inline int spd_read_byte(unsigned device, unsigned address)
+int spd_read_byte(unsigned device, unsigned address)
 {
 	return smbus_read_byte(device, address);
 }
 
-#include "southbridge/nvidia/mcp55/early_ctrl.c"
-#include <northbridge/amd/amdk8/f.h>
-#include "northbridge/amd/amdk8/incoherent_ht.c"
-#include "northbridge/amd/amdk8/coherent_ht.c"
-#include "northbridge/amd/amdk8/raminit_f.c"
 #include "lib/generic_sdram.c"
 #include "resourcemap.c"
 #include "cpu/amd/dualcore/dualcore.c"
-#include <southbridge/nvidia/mcp55/early_setup_ss.h>
 
 //set GPIO to input mode
 #define MCP55_MB_SETUP \
@@ -89,17 +84,6 @@ static inline int spd_read_byte(unsigned device, unsigned address)
 		RES_PORT_IO_8, SYSCTRL_IO_BASE + 0xc0+45, ~(0xff), ((0 << 4)|(0 << 2)|(0 << 0)),/* P7,GPIO46, PCIXB_PRSNT2_L*/ \
 
 #include "southbridge/nvidia/mcp55/early_setup_car.c"
-#include "cpu/amd/model_fxx/init_cpus.c"
-#include "northbridge/amd/amdk8/early_ht.c"
-
-/* FIXME
- * Dummy method to allow build
- * Determine if this board / CPU should support
- * FID/VID and implement proper support if so
- */
-#if IS_ENABLED(CONFIG_SET_FIDVID)
-void init_fidvid_ap(u32 bsp_apicid, u32 apicid) { }
-#endif
 
 static void sio_setup(void)
 {
