@@ -37,7 +37,7 @@ config CBFS_PREFIX
 
 choice
 	prompt "Compiler to use"
-	default COMPILER_GCC
+	default COMPILER_LLVM_CLANG
 	help
 	  This option allows you to select the compiler used for building
 	  coreboot.
