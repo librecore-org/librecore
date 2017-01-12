@@ -11,7 +11,7 @@ romstage-y += raminit_amdmct.c pci.c early_ht.c amdfam10_util.c
 
 # RAMSTAGE
 ramstage-y += northbridge.c misc_control.c link_control.c nb_control.c
-ramstage-y += amdfam10_util.c ht_config.c get_pci1234.c
+ramstage-y += amdfam10_util.c ht_config.c get_pci1234.c reset_ramstage.c
 ramstage-$(CONFIG_HAVE_ACPI_TABLES) += acpi.c
 
 # Enable this if you want to check the values of the PCI routing registers.

@@ -912,12 +912,10 @@ that are corresponding to 0x01, 0x02, 0x03, 0x05, 0x06, 0x07
 
 #include "nums.h"
 
-#ifdef __PRE_RAM__
 #if NODE_NUMS == 64
 	 #define NODE_PCI(x, fn) ((x < 32)?(PCI_DEV(CONFIG_CBB,(CONFIG_CDB+x),fn)):(PCI_DEV((CONFIG_CBB-1),(CONFIG_CDB+x-32),fn)))
 #else
 	 #define NODE_PCI(x, fn) PCI_DEV(CONFIG_CBB,(CONFIG_CDB+x),fn)
-#endif
 #endif
 
 /* Include wrapper for MCT (works for DDR2 or DDR3) */
@@ -1000,18 +998,6 @@ void setup_resource_map_x_offset(const u32 *register_values, u32 max, u32
 
 void setup_resource_map_x(const u32 *register_values, u32 max);
 void setup_resource_map(const u32 *register_values, u32 max);
-
-/* reset_test.c */
-u32 cpu_init_detected(u8 nodeid);
-u32 bios_reset_detected(void);
-u32 cold_reset_detected(void);
-u32 other_reset_detected(void);
-u32 warm_reset_detect(u8 nodeid);
-void distinguish_cpu_resets(u8 nodeid);
-u32 get_sblk(void);
-u8 get_sbbusn(u8 sblk);
-void set_bios_reset(void);
-
 #endif
 
 #include "northbridge/amd/amdht/porting.h"

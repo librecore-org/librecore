@@ -12,6 +12,7 @@ romstage-$(CONFIG_HAVE_ACPI_RESUME) += exit_from_self.c
 
 ramstage-y += northbridge.c
 ramstage-y += misc_control.c
+ramstage-y += reset_ramstage.c
 ramstage-y += get_sblk_pci1234.c
 ramstage-$(CONFIG_HAVE_ACPI_TABLES) += acpi.c
 

@@ -13,13 +13,12 @@
  * GNU General Public License for more details.
  */
 
-// Use simple device model for this file even in ramstage
 #define __SIMPLE_DEVICE__
 
 #include <arch/io.h>
 #include <reset.h>
 
-#include <northbridge/amd/amdk8/reset_test.c>
+extern void set_bios_reset(void);
 
 void hard_reset(void)
 {

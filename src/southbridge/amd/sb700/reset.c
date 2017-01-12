@@ -13,7 +13,6 @@
  * GNU General Public License for more details.
  */
 
-// Use simple device model for this file even in ramstage
 #define __SIMPLE_DEVICE__
 
 #include <arch/io.h>

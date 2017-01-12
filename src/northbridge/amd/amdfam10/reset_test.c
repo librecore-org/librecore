@@ -13,11 +13,16 @@
  * GNU General Public License for more details.
  */
 
+#define __SIMPLE_DEVICE__
+
+#include <arch/io.h>
 #include <stdint.h>
 #include <cpu/x86/lapic.h>
 #include <northbridge/amd/amdfam10/raminit.h>
 #include <northbridge/amd/amdfam10/amdfam10.h>
+#include "reset_test.h"
 
+#ifdef __PRE_RAM__
 /* mmconf is not ready */
 /* io_ext is not ready */
 u32 cpu_init_detected(u8 nodeid)
@@ -73,25 +78,7 @@ u32 warm_reset_detect(u8 nodeid)
 	htic = pci_io_read_config32(device, HT_INIT_CONTROL);
 	return (htic & HTIC_ColdR_Detect) && !(htic & HTIC_BIOSR_Detect);
 }
-
-void set_bios_reset(void)
-{
-
-	u32 nodes;
-	u32 htic;
-	pci_devfn_t dev;
-	int i;
-
-	nodes = ((pci_read_config32(PCI_DEV(CONFIG_CBB, CONFIG_CDB, 0), 0x60) >> 4) & 7) + 1;
-
-	for (i = 0; i < nodes; i++) {
-		dev = NODE_PCI(i,0);
-		htic = pci_read_config32(dev, HT_INIT_CONTROL);
-		htic &= ~HTIC_BIOSR_Detect;
-		pci_write_config32(dev, HT_INIT_CONTROL, htic);
-	}
-}
-
+#endif
 
 /* Look up a which bus a given node/link combination is on.
  * return 0 when we can't find the answer.
@@ -119,6 +106,25 @@ static u8 node_link_to_bus(u8 node, u8 link) // node are 6 bit, and link three b
 
 	return 0;
 }
+
+void set_bios_reset(void)
+{
+
+	u32 nodes;
+	u32 htic;
+	pci_devfn_t dev;
+	int i;
+
+	nodes = ((pci_read_config32(PCI_DEV(CONFIG_CBB, CONFIG_CDB, 0), 0x60) >> 4) & 7) + 1;
+
+	for (i = 0; i < nodes; i++) {
+		dev = NODE_PCI(i,0);
+		htic = pci_read_config32(dev, HT_INIT_CONTROL);
+		htic &= ~HTIC_BIOSR_Detect;
+		pci_write_config32(dev, HT_INIT_CONTROL, htic);
+	}
+}
+
 
 u32 get_sblk(void)
 {

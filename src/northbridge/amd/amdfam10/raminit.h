@@ -19,6 +19,7 @@
 #include <device/pci.h>
 #include <northbridge/amd/amdmct/amddefs.h>
 #include <northbridge/amd/amdmct/wrappers/mcti.h>
+#include "reset_test.h"
 
 struct sys_info;
 struct DCTStatStruc;
