@@ -16,6 +16,9 @@
 #ifndef SB600_SMBUS_H
 #define SB600_SMBUS_H
 
+#include <stdint.h>
+#include <arch/io.h>
+
 #define SMBHSTSTAT 0x0
 #define SMBSLVSTAT 0x1
 #define SMBHSTCTRL 0x2
@@ -42,6 +45,45 @@
  * Longer than this is just painful when a timeout condition occurs.
  */
 #define SMBUS_TIMEOUT (100*1000*10)
+
+static void alink_ab_indx(u32 reg_space, u32 reg_addr, u32 mask, u32 val)
+{
+	u32 tmp;
+
+	outl((reg_space & 0x3) << 30 | reg_addr, AB_INDX);
+	tmp = inl(AB_DATA);
+
+	tmp &= ~mask;
+	tmp |= val;
+
+	/* printk(BIOS_DEBUG, "about write %x, index=%x", tmp, (reg_space&0x3)<<30 | reg_addr); */
+	outl((reg_space & 0x3) << 30 | reg_addr, AB_INDX);	/* probably we don't have to do it again. */
+	outl(tmp, AB_DATA);
+}
+
+/* space = 0: AX_INDXC, AX_DATAC
+*   space = 1: AX_INDXP, AX_DATAP
+ */
+static void alink_ax_indx(u32 space /*c or p? */ , u32 axindc,
+			  u32 mask, u32 val)
+{
+	u32 tmp;
+
+	/* read axindc to tmp */
+	outl(space << 30 | space << 3 | 0x30, AB_INDX);
+	outl(axindc, AB_DATA);
+	outl(space << 30 | space << 3 | 0x34, AB_INDX);
+	tmp = inl(AB_DATA);
+
+	tmp &= ~mask;
+	tmp |= val;
+
+	/* write tmp */
+	outl(space << 30 | space << 3 | 0x30, AB_INDX);
+	outl(axindc, AB_DATA);
+	outl(space << 30 | space << 3 | 0x34, AB_INDX);
+	outl(tmp, AB_DATA);
+}
 
 #define abcfg_reg(reg, mask, val)	\
 	alink_ab_indx((ABCFG), (reg), (mask), (val))

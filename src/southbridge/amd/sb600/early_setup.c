@@ -16,7 +16,7 @@
 #include <reset.h>
 #include <arch/cpu.h>
 #include "sb600.h"
-#include "smbus.c"
+#include "smbus.h"
 
 extern void set_bios_reset(void);
 

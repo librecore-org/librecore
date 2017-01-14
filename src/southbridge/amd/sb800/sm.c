@@ -25,7 +25,7 @@
 #include <arch/ioapic.h>
 #include <stdlib.h>
 #include "sb800.h"
-#include "smbus.c"
+#include "smbus.h"
 
 #define NMI_OFF 0
 

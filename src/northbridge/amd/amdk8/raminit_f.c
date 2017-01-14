@@ -2869,8 +2869,6 @@ void sdram_set_spd_registers(const struct mem_controller *ctrl,
 
 #define TIMEOUT_LOOPS 300000
 
-//#include "raminit_f_dqs.c"
-
 #if CONFIG_HW_MEM_HOLE_SIZEK != 0
 static uint32_t hoist_memory(int controllers, const struct mem_controller *ctrl,unsigned hole_startk, int i)
 {

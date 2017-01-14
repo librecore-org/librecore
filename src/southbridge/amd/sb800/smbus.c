@@ -17,6 +17,8 @@
 #define _SB800_SMBUS_C_
 
 #include "smbus.h"
+#include <arch/io.h>
+#include <device/pci_def.h>
 
 static inline void smbus_delay(void)
 {

@@ -21,7 +21,7 @@
 #include <arch/cpu.h>
 #include <cbmem.h>
 #include "sb800.h"
-#include "smbus.c"
+#include "smbus.h"
 
 #define SMBUS_IO_BASE 0x6000	/* Is it a temporary SMBus I/O base address? */
 	 /*SIZE 0x40 */
