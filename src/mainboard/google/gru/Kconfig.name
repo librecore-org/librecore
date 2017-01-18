@@ -1,7 +1,0 @@
-config BOARD_GOOGLE_KEVIN
-	bool "Kevin"
-	select BOARD_GOOGLE_GRU_COMMON
-
-config BOARD_GOOGLE_GRU
-	bool "Gru"
-	select BOARD_GOOGLE_GRU_COMMON
