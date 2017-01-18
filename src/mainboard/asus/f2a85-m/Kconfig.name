@@ -1,2 +1,0 @@
-config BOARD_ASUS_F2A85_M
-	bool "F2A85-M"
