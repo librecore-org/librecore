@@ -20,9 +20,6 @@
 #include <arch/early_variables.h>
 #include <symbols.h>
 
-#if IS_ENABLED(CONFIG_PLATFORM_USES_FSP1_0)
-#include <drivers/intel/fsp1_0/fsp_util.h>
-#endif
 typedef void (* const car_migration_func_t)(void);
 
 extern car_migration_func_t _car_migrate_start;
@@ -46,8 +43,8 @@ void *car_get_var_ptr(void *var)
 {
 	char *migrated_base = NULL;
 	int offset;
-	void *_car_start = _car_relocatable_data_start;
-	void *_car_end = _car_relocatable_data_end;
+	void * _car_start = _car_relocatable_data_start;
+	void * _car_end = _car_relocatable_data_end;
 
 	/* If the cache-as-ram has not been migrated return the pointer
 	 * passed in. */
@@ -61,18 +58,11 @@ void *car_get_var_ptr(void *var)
 		return var;
 	}
 
-#if IS_ENABLED(CONFIG_PLATFORM_USES_FSP1_0)
-	migrated_base = (char *)find_saved_temp_mem(
-			*(void **)CBMEM_FSP_HOB_PTR);
-	/* FSP 1.0 migrates the entire DCACHE RAM */
-	offset = (char *)var - (char *)CONFIG_DCACHE_RAM_BASE;
-#else
 	migrated_base = cbmem_find(CBMEM_ID_CAR_GLOBALS);
 	offset = (char *)var - (char *)_car_start;
-#endif
 
 	if (migrated_base == NULL)
-		die("CAR: Could not find migration base!\n");
+		die( "CAR: Could not find migration base!\n");
 
 	return &migrated_base[offset];
 }
@@ -83,23 +73,17 @@ void *car_get_var_ptr(void *var)
  */
 void *car_sync_var_ptr(void *var)
 {
-	void **mig_var = car_get_var_ptr(var);
-	void *_car_start = _car_relocatable_data_start;
-	void *_car_end = _car_relocatable_data_end;
+	void ** mig_var = car_get_var_ptr(var);
+	void * _car_start = _car_relocatable_data_start;
+	void * _car_end = _car_relocatable_data_end;
 
 	/* Not moved or migrated yet. */
 	if (mig_var == var)
 		return mig_var;
 
-	/*
-	 * Migrate the cbmem console pointer for FSP 1.0 platforms. Otherwise,
-	 * keep console buffer in CAR until cbmemc_reinit() moves it.
-	 */
-	if (*mig_var == _preram_cbmem_console) {
-		if (IS_ENABLED(CONFIG_PLATFORM_USES_FSP1_0))
-			*mig_var += (char *)mig_var - (char *)var;
+	/* Keep console buffer in CAR until cbmemc_reinit() moves it. */
+	if (*mig_var == _preram_cbmem_console)
 		return mig_var;
-	}
 
 	/* It's already pointing outside car.global_data. */
 	if (*mig_var < _car_start || *mig_var > _car_end)
@@ -137,7 +121,6 @@ static void do_car_migrate_variables(void)
 
 static void car_migrate_variables(int is_recovery)
 {
-	if (!IS_ENABLED(PLATFORM_USES_FSP1_0))
-		do_car_migrate_variables();
+	do_car_migrate_variables();
 }
 ROMSTAGE_CBMEM_INIT_HOOK(car_migrate_variables)
