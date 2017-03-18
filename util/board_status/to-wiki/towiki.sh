@@ -321,17 +321,11 @@ EOF
 			        cpu_nice="Intel® 4th Gen (Haswell) Core i3/i5/i7"
 			        socket_nice="?"
 				;;
-			INTEL_FSP_RANGELEY)
-			        cpu_nice="Intel® Atom Rangeley (FSP)"
-			        socket_nice="?"
-				;;
 			INTEL_SOCKET_RPGA989|INTEL_SOCKET_LGA1155|INTEL_SOCKET_RPGA988B)
 			        socket_nice="`echo $cpu | sed 's,INTEL_SOCKET_,Socket ,g'`"
 				case $northbridge in
 					INTEL_HASWELL)
 						cpu_nice="Intel® 4th Gen (Haswell) Core i3/i5/i7";;
-					INTEL_IVYBRIDGE|INTEL_FSP_IVYBRIDGE)
-						cpu_nice="Intel® 3rd Gen (Ivybridge) Core i3/i5/i7";;
 					INTEL_SANDYBRIDGE)
 						cpu_nice="Intel® 2nd Gen (Sandybridge) Core i3/i5/i7";;
 					*)
