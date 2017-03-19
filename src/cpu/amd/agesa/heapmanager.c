@@ -23,9 +23,7 @@
 #include <arch/acpi.h>
 #include <string.h>
 
-#if IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY15_TN) || \
-  IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY15_RL) || \
-  IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY16_KB)
+#if IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY16_KB)
 
 /* BIOS_HEAP_START_ADDRESS is only for cold boots. */
 #define BIOS_HEAP_SIZE		0x30000
@@ -72,32 +70,6 @@ void ResumeHeap(void **heap, size_t *len)
 		(unsigned int)(uintptr_t) base, (unsigned int)(uintptr_t) base + BIOS_HEAP_SIZE - 1);
 }
 
-#if (IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY15_TN) || \
-		IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY15_RL)) && !defined(__PRE_RAM__)
-
-#define AGESA_RUNTIME_SIZE 4096
-
-static AGESA_STATUS alloc_cbmem(AGESA_BUFFER_PARAMS *AllocParams) {
-	static unsigned int used = 0;
-	void *p = cbmem_find(CBMEM_ID_AGESA_RUNTIME);
-
-	if ((AGESA_RUNTIME_SIZE - used) < AllocParams->BufferLength) {
-		return AGESA_BOUNDS_CHK;
-	}
-
-	/* first time allocation */
-	if (!p) {
-		p = cbmem_add(CBMEM_ID_AGESA_RUNTIME, AGESA_RUNTIME_SIZE);
-		if (!p)
-			return AGESA_BOUNDS_CHK;
-	}
-
-	AllocParams->BufferPointer = p + used;
-	used += AllocParams->BufferLength;
-	return AGESA_SUCCESS;
-}
-#endif
-
 typedef struct _BIOS_HEAP_MANAGER {
 	UINT32 StartOfAllocatedNodes;
 	UINT32 StartOfFreedNodes;
@@ -129,13 +101,6 @@ static AGESA_STATUS agesa_AllocateBuffer(UINT32 Func, UINT32 Data, VOID *ConfigP
 
 	AllocParams = ((AGESA_BUFFER_PARAMS *) ConfigPtr);
 	AllocParams->BufferPointer = NULL;
-
-#if (IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY15_TN) || \
-		IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY15_RL)) && !defined(__PRE_RAM__)
-	/* if the allocation is for runtime use simple CBMEM data */
-	if (Data == HEAP_CALLOUT_RUNTIME)
-		return alloc_cbmem(AllocParams);
-#endif
 
 	AvailableHeapSize = BIOS_HEAP_SIZE - sizeof(BIOS_HEAP_MANAGER);
 	BiosHeapBaseAddr = GetHeapBase();
