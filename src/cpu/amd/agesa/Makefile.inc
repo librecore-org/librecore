@@ -12,7 +12,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-subdirs-$(CONFIG_CPU_AMD_AGESA_FAMILY15) += family15
 subdirs-$(CONFIG_CPU_AMD_AGESA_FAMILY15_TN) += family15tn
 subdirs-$(CONFIG_CPU_AMD_AGESA_FAMILY15_RL) += family15rl
 subdirs-$(CONFIG_CPU_AMD_AGESA_FAMILY16_KB) += family16kb
