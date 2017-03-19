@@ -35,10 +35,6 @@ void bootblock_soc_early_init(void)
 
 void bootblock_soc_init(void)
 {
-	/* FSP 2.0 does not provide FSP-T/TempRamInit init support yet */
-	if (IS_ENABLED(CONFIG_PLATFORM_USES_FSP1_1))
-		bootblock_fsp_temp_ram_init();
-
 	/*
 	 * Perform early chipset initialization before fsp memory init
 	 * example: pirq->irq programming, enabling smbus, set pmcbase

@@ -54,7 +54,6 @@ romstage-y += tsc_freq.c
 romstage-$(CONFIG_UART_DEBUG) += uart_debug.c
 
 ramstage-$(CONFIG_HAVE_ACPI_TABLES) += acpi.c
-ramstage-$(CONFIG_PLATFORM_USES_FSP1_1) += chip.c
 ramstage-$(CONFIG_PLATFORM_USES_FSP2_0) += chip_fsp20.c
 ramstage-y += cpu.c
 ramstage-y += cpu_info.c
@@ -70,7 +69,6 @@ ramstage-y += lpc.c
 ramstage-y += me.c
 ramstage-y += memmap.c
 ramstage-y += monotonic_timer.c
-ramstage-$(CONFIG_PLATFORM_USES_FSP1_1) += opregion.c
 ramstage-y += pch.c
 ramstage-y += pcie.c
 ramstage-y += pcr.c
@@ -108,13 +106,8 @@ smm-$(CONFIG_UART_DEBUG) += uart_debug.c
 CPPFLAGS_common += -I$(src)/soc/intel/skylake
 CPPFLAGS_common += -I$(src)/soc/intel/skylake/include
 
-ifeq ($(CONFIG_PLATFORM_USES_FSP1_1),y)
-CPPFLAGS_common += -I$(src)/soc/intel/skylake/include/fsp11
-CPPFLAGS_common += -I$(src)/vendorcode/intel/fsp/fsp1_1/skylake
-else
 CPPFLAGS_common += -I$(src)/soc/intel/skylake/include/fsp20
 CPPFLAGS_common += -I$(src)/vendorcode/intel/fsp/fsp2_0/skykabylake
-endif
 
 # Currently used for microcode path.
 CPPFLAGS_common += -I3rdparty/blobs/mainboard/$(MAINBOARDDIR)

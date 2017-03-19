@@ -16,12 +16,6 @@
 #ifndef _SOC_SKYLAKE_BOOTBLOCK_H_
 #define _SOC_SKYLAKE_BOOTBLOCK_H_
 
-#if IS_ENABLED(CONFIG_PLATFORM_USES_FSP1_1)
-#include <fsp/bootblock.h>
-#else
-static inline void bootblock_fsp_temp_ram_init(void) {}
-#endif
-
 /* Bootblock pre console init programing */
 void bootblock_cpu_init(void);
 void bootblock_pch_early_init(void);

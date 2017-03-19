@@ -19,11 +19,7 @@
 #ifndef _SOC_VR_CONFIG_H_
 #define _SOC_VR_CONFIG_H_
 
-#if IS_ENABLED(CONFIG_PLATFORM_USES_FSP1_1)
-#include <fsp/soc_binding.h>
-#else
 #include <fsp/api.h>
-#endif
 
 struct vr_config {
 
@@ -69,20 +65,6 @@ struct vr_config {
 
 #define VR_CFG_AMP(i) ((i) * 4)
 
-#if IS_ENABLED(CONFIG_PLATFORM_USES_FSP1_1)
-/* VrConfig Settings for 5 domains
- * 0 = System Agent, 1 = IA Core, 2 = Ring,
- * 3 = GT unsliced,  4 = GT sliced
- */
-enum vr_domain {
-	VR_SYSTEM_AGENT,
-	VR_IA_CORE,
-	VR_RING,
-	VR_GT_UNSLICED,
-	VR_GT_SLICED,
-	NUM_VR_DOMAINS
-};
-#else
 /* VrConfig Settings for 4 domains
  * 0 = System Agent, 1 = IA Core,
  * 2 = GT unsliced,  3 = GT sliced
@@ -94,7 +76,6 @@ enum vr_domain {
 	VR_GT_SLICED,
 	NUM_VR_DOMAINS
 };
-#endif
 
 void fill_vr_domain_config(void *params,
 			int domain, const struct vr_config *cfg);

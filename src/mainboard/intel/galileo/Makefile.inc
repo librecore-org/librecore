@@ -13,7 +13,7 @@
 ## GNU General Public License for more details.
 ##
 
-ifeq ($(CONFIG_PLATFORM_USES_FSP2_0)$(CONFIG_PLATFORM_USES_FSP1_1),y)
+ifeq ($(CONFIG_PLATFORM_USES_FSP2_0),y)
 CPPFLAGS_common += -I$(src)/vendorcode/intel/fsp/$(CONFIG_FSP_VERSION)/quark
 endif
 
