@@ -106,19 +106,6 @@ AGESA_STATUS agesa_RunFuncOnAp (UINT32 Func, UINTN Data, VOID *ConfigPtr)
 	return Status;
 }
 
-#if IS_ENABLED(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY16_KB)
-/* FIXME: we would like GFX disable for fam14 too for headless systems. */
-AGESA_STATUS agesa_GfxGetVbiosImage(UINT32 Func, UINTN FchData, VOID *ConfigPrt)
-{
-	GFX_VBIOS_IMAGE_INFO  *pVbiosImageInfo = (GFX_VBIOS_IMAGE_INFO *)ConfigPrt;
-	pVbiosImageInfo->ImagePtr = cbfs_boot_map_with_leak(
-			"pci"CONFIG_VGA_BIOS_ID".rom",
-			CBFS_TYPE_OPTIONROM, NULL);
-	/* printk(BIOS_DEBUG, "IMGptr=%x\n", pVbiosImageInfo->ImagePtr); */
-	return pVbiosImageInfo->ImagePtr == NULL ? AGESA_WARNING : AGESA_SUCCESS;
-}
-#endif
-
 AGESA_STATUS agesa_ReadSpd (UINT32 Func, UINTN Data, VOID *ConfigPtr)
 {
 	AGESA_STATUS Status = AGESA_UNSUPPORTED;

@@ -283,10 +283,6 @@ AGESA_STATUS agesawrapper_amdinitlate(void)
 	AmdParamStruct.StdHeader.Func = 0;
 	AmdParamStruct.StdHeader.ImageBasePtr = 0;
 
-#if IS_ENABLED(CONFIG_CPU_AMD_AGESA_FAMILY16_KB)
-	AmdParamStruct.StdHeader.HeapStatus = HEAP_SYSTEM_MEM;
-#endif
-
 	AmdCreateStruct(&AmdParamStruct);
 	AmdLateParams = (AMD_LATE_PARAMS *) AmdParamStruct.NewStructPtr;
 	status = AmdInitLate(AmdLateParams);

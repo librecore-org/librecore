@@ -15,8 +15,6 @@
 
 ifeq ($(CONFIG_NORTHBRIDGE_AMD_AGESA),y)
 
-subdirs-$(CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY16_KB) += family16kb
-
 romstage-y += def_callouts.c agesawrapper.c eventlog.c
 ramstage-y += def_callouts.c agesawrapper.c eventlog.c
 

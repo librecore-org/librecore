@@ -15,7 +15,6 @@
 
 config CPU_AMD_AGESA
 	bool
-	default y if CPU_AMD_AGESA_FAMILY16_KB
 	default n
 	select ARCH_BOOTBLOCK_X86_32
 	select ARCH_VERSTAGE_X86_32
@@ -64,5 +63,3 @@ config S3_DATA_SIZE
 	default 32768
 
 endif # CPU_AMD_AGESA
-
-source src/cpu/amd/agesa/family16kb/Kconfig

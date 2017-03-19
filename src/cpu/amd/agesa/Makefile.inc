@@ -12,7 +12,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-subdirs-$(CONFIG_CPU_AMD_AGESA_FAMILY16_KB) += family16kb
 
 romstage-y += s3_resume.c
 ramstage-y += s3_mtrr.c
