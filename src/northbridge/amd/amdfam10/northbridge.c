@@ -320,7 +320,7 @@ static void amdfam10_scan_chains(device_t dev)
 {
 	struct bus *link;
 
-#if CONFIG_CPU_AMD_SOCKET_G34_NON_AGESA
+#if CONFIG_CPU_AMD_SOCKET_G34
 	if (is_fam15h()) {
 		uint8_t current_link_number = 0;
 

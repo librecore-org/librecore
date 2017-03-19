@@ -243,10 +243,10 @@ EOF
 			AMD_SOCKET_S1G1)
 				cpu_nice="AMD Turion™ / X2  Sempron™";
 				socket_nice="Socket S1G1";;
-			AMD_SOCKET_G34|AMD_SOCKET_G34_NON_AGESA)
+			AMD_SOCKET_G34|AMD_SOCKET_G34)
 				cpu_nice="AMD Opteron™ Magny-Cours/Interlagos";
 				socket_nice="Socket G34";;
-			AMD_SOCKET_C32|AMD_SOCKET_C32_NON_AGESA)
+			AMD_SOCKET_C32|AMD_SOCKET_C32)
 				cpu_nice="AMD Opteron™ Magny-Cours/Interlagos";
 				socket_nice="Socket C32";;
 			AMD_SOCKET_AM2)

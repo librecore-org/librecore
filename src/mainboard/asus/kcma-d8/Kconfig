@@ -2,7 +2,7 @@ if BOARD_ASUS_KCMA_D8
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select CPU_AMD_SOCKET_C32_NON_AGESA
+	select CPU_AMD_SOCKET_C32
 	select DIMM_DDR3
 	select DIMM_REGISTERED
 	# select QRANK_DIMM_SUPPORT
