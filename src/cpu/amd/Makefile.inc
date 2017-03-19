@@ -13,5 +13,3 @@ subdirs-$(CONFIG_CPU_AMD_SOCKET_G34_NON_AGESA) += socket_G34
 subdirs-$(CONFIG_CPU_AMD_GEODE_GX2) += geode_gx2
 subdirs-$(CONFIG_CPU_AMD_GEODE_LX) += geode_lx
 subdirs-$(CONFIG_CPU_AMD_SOCKET_S1G1) += socket_S1G1
-
-subdirs-$(CONFIG_CPU_AMD_PI) += pi

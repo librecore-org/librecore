@@ -12,8 +12,4 @@ void post_cache_as_ram(void);
 void cache_as_ram_switch_stack(void *stacktop);
 void cache_as_ram_new_stack(void);
 
-#if CONFIG_CPU_AMD_PI
-void disable_cache_as_ram(void);
-#endif
-
 #endif
