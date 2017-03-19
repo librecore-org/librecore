@@ -1,5 +1,0 @@
-Board name: APU1
-Category: half
-ROM protocol: SPI
-ROM socketed: n
-Flashrom support: y

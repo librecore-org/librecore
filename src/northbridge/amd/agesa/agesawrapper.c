@@ -318,11 +318,7 @@ void *agesawrapper_getlateinitptr(int pick)
 	case PICK_ALIB:
 		return AmdLateParams->AcpiAlib;
 	case PICK_IVRS:
-#if IS_ENABLED(CONFIG_CPU_AMD_AGESA_FAMILY14)
-		return NULL;
-#else
 		return AmdLateParams->AcpiIvrs;
-#endif
 	default:
 		return NULL;
 	}
