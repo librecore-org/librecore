@@ -27,7 +27,6 @@
 #define ENV_VERSTAGE 0
 #define ENV_RMODULE 0
 #define ENV_POSTCAR 0
-#define ENV_LIBAGESA 0
 #define ENV_STRING "bootblock"
 
 #elif defined(__ROMSTAGE__)
@@ -38,7 +37,6 @@
 #define ENV_VERSTAGE 0
 #define ENV_RMODULE 0
 #define ENV_POSTCAR 0
-#define ENV_LIBAGESA 0
 #define ENV_STRING "romstage"
 
 #elif defined(__SMM__)
@@ -49,7 +47,6 @@
 #define ENV_VERSTAGE 0
 #define ENV_RMODULE 0
 #define ENV_POSTCAR 0
-#define ENV_LIBAGESA 0
 #define ENV_STRING "smm"
 
 #elif defined(__VERSTAGE__)
@@ -60,7 +57,6 @@
 #define ENV_VERSTAGE 1
 #define ENV_RMODULE 0
 #define ENV_POSTCAR 0
-#define ENV_LIBAGESA 0
 #define ENV_STRING "verstage"
 
 #elif defined(__RAMSTAGE__)
@@ -71,7 +67,6 @@
 #define ENV_VERSTAGE 0
 #define ENV_RMODULE 0
 #define ENV_POSTCAR 0
-#define ENV_LIBAGESA 0
 #define ENV_STRING "ramstage"
 
 #elif defined(__RMODULE__)
@@ -82,7 +77,6 @@
 #define ENV_VERSTAGE 0
 #define ENV_RMODULE 1
 #define ENV_POSTCAR 0
-#define ENV_LIBAGESA 0
 #define ENV_STRING "rmodule"
 
 #elif defined(__POSTCAR__)
@@ -93,19 +87,7 @@
 #define ENV_VERSTAGE 0
 #define ENV_RMODULE 0
 #define ENV_POSTCAR 1
-#define ENV_LIBAGESA 0
 #define ENV_STRING "postcar"
-
-#elif defined(__LIBAGESA__)
-#define ENV_BOOTBLOCK 0
-#define ENV_ROMSTAGE 0
-#define ENV_RAMSTAGE 0
-#define ENV_SMM 0
-#define ENV_VERSTAGE 0
-#define ENV_RMODULE 0
-#define ENV_POSTCAR 0
-#define ENV_LIBAGESA 1
-#define ENV_STRING "libagesa"
 
 #else
 /*
@@ -119,7 +101,6 @@
 #define ENV_VERSTAGE 0
 #define ENV_RMODULE 0
 #define ENV_POSTCAR 0
-#define ENV_LIBAGESA 0
 #define ENV_STRING "UNKNOWN"
 #endif
 

@@ -20,7 +20,6 @@ menu "AMD Platform Initialization"
 choice
 	prompt "AGESA source"
 	default CPU_AMD_AGESA_BINARY_PI if CPU_AMD_PI
-	default CPU_AMD_AGESA_OPENSOURCE
 	help
 	  Select the method for including the AMD Platform Initialization
 	  code into coreboot.  Platform Initialization code is required for
@@ -34,12 +33,6 @@ config CPU_AMD_AGESA_BINARY_PI
 	  "3rdparty/blobs" directory.  For some processors, these must be obtained
 	  directly from AMD Embedded Processors Group
 	  (http://www.amdcom/embedded).
-
-config CPU_AMD_AGESA_OPENSOURCE
-	bool "open-source AGESA"
-	help
-	  Build the PI package ("AGESA") from source code in the "vendorcode"
-	  directory.
 
 endchoice
 
