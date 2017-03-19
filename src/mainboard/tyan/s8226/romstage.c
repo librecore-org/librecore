@@ -25,7 +25,6 @@
 #include <cpu/amd/car.h>
 #include <northbridge/amd/agesa/agesawrapper.h>
 #include <northbridge/amd/agesa/agesa_helper.h>
-#include <northbridge/amd/agesa/family10/reset_test.h>
 #include <nb_cimx.h>
 #include <sb_cimx.h>
 #include <superio/winbond/common/winbond.h>
@@ -92,13 +91,6 @@ void cache_as_ram_main(unsigned long bist, unsigned long cpu_init_detectedx)
 
 	nb_Ht_Init();
 	post_code(0x3D);
-	/* Reset for HT, FIDVID, PLL and ucode patch(errata) changes to take affect. */
-	if (!warm_reset_detect(0)) {
-		printk(BIOS_INFO, "...WARM RESET...\n\n\n");
-		distinguish_cpu_resets(0);
-		soft_reset();
-		die("After soft_reset_x - shouldn't see this message!!!\n");
-	}
 
 	post_code(0x40);
 	agesawrapper_amdinitpost();

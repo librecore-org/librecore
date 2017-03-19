@@ -429,9 +429,6 @@ CONST AP_MTRR_SETTINGS ROMDATA h8qgi_ap_mtrr_list[] =
 #if CONFIG_CPU_AMD_AGESA_FAMILY15
   #define BLDOPT_REMOVE_FAMILY_10_SUPPORT         TRUE
 #endif
-#if CONFIG_CPU_AMD_AGESA_FAMILY10
-  #define BLDOPT_REMOVE_FAMILY_15_SUPPORT         TRUE
-#endif
 */
 
 #include "MaranelloInstall.h"

@@ -48,25 +48,6 @@ static void alink_ax_indx(u32 space, u32 axindc, u32 mask, u32 val)
 	outl(tmp, AB_DATA);
 }
 
-
-/* family 10 only, for reg > 0xFF */
-#if CONFIG_NORTHBRIDGE_AMD_AMDFAM10 || CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY10
-static void set_fam10_ext_cfg_enable_bits(device_t fam10_dev, u32 reg_pos, u32 mask,
-				  u32 val)
-{
-	u32 reg_old, reg;
-	reg = reg_old = pci_read_config32(fam10_dev, reg_pos);
-	reg &= ~mask;
-	reg |= val;
-	if (reg != reg_old) {
-		pci_write_config32(fam10_dev, reg_pos, reg);
-	}
-}
-#else
-#define set_fam10_ext_cfg_enable_bits(a, b, c, d) do {} while (0)
-#endif
-
-
 /*
 * Compliant with CIM_33's ATINB_PrepareInit
 */
@@ -220,54 +201,6 @@ void sr5650_htinit(void)
 
 		/* Enable Protocol checker */
 		set_htiu_enable_bits(sr5650_f0, 0x1E, 0xFFFFFFFF, 0x7FFFFFFC);
-
-#if CONFIG_NORTHBRIDGE_AMD_AMDFAM10 || CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY10 /* save some spaces */
-		/* HT3 mode, RPR 5.4.3 */
-		set_nbcfg_enable_bits(sr5650_f0, 0x9c, 0x3 << 16, 0);
-
-		/* set IBIAS code */
-		set_nbcfg_enable_bits(clk_f1, 0xD8, 0x3FF, ibias);
-		/* Optimizes chipset HT transmitter drive strength */
-		set_htiu_enable_bits(sr5650_f0, 0x2A, 0x3, 0x1);
-		/* Enables error-retry mode */
-		set_nbcfg_enable_bits(sr5650_f0, 0x44, 0x1, 0x1);
-		/* Enables scrambling and Disables command throttling */
-		set_nbcfg_enable_bits(sr5650_f0, 0xac, (1 << 3) | (1 << 14), (1 << 3) | (1 << 14));
-		/* Enables transmitter de-emphasis */
-		set_nbcfg_enable_bits(sr5650_f0, 0xa4, 1 << 31, 1 << 31);
-		/* Enables transmitter de-emphasis level */
-		/* Sets training 0 time */
-		set_nbcfg_enable_bits(sr5650_f0, 0xa0, 0x3F, 0x14);
-
-		/* Enables strict TM4 detection */
-		set_htiu_enable_bits(sr5650_f0, 0x15, 0x1 << 22, 0x1 << 22);
-
-		/* Optimizes chipset HT transmitter drive strength */
-		set_htiu_enable_bits(sr5650_f0, 0x2A, 0x3 << 0, 0x1 << 0);
-
-		/* HyperTransport 3 Processor register settings to be done in northbridge */
-
-		/* Enables error-retry mode */
-		set_fam10_ext_cfg_enable_bits(cpu_f0, 0x130 + (sblink << 2), 1 << 0, 1 << 0);
-
-		/* Enables scrambling */
-		set_fam10_ext_cfg_enable_bits(cpu_f0, 0x170 + (sblink << 2), 1 << 3, 1 << 3);
-
-		/* Enables transmitter de-emphasis
-		 * This depends on the PCB design and the trace
-		 */
-		/* Disables command throttling */
-		set_fam10_ext_cfg_enable_bits(cpu_f0, 0x168, 1 << 10, 1 << 10);
-
-		/* Sets Training 0 Time. See T0Time table for encodings */
-		/* AGESA have set it to recommended value already
-		 * The recommended values are 14h(2us) if F0x[18C:170][LS2En]=0
-		 * and 26h(12us) if F0x[18C:170][LS2En]=1
-		 */
-		//set_fam10_ext_cfg_enable_bits(cpu_f0, 0x16C, 0x3F, 0x26);
-
-		/* HT Buffer Allocation for Ganged Links!!! */
-#endif	/* CONFIG_NORTHBRIDGE_AMD_AMDFAM10 || CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY10 */
 	}
 
 }
@@ -298,37 +231,6 @@ void sr5650_htinit_dect_and_enable_isochronous_link(void)
 		}
 	}
 }
-
-#if CONFIG_NORTHBRIDGE_AMD_AMDFAM10 || CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY10 /* save some spaces */
-void fam10_optimization(void)
-{
-	device_t cpu_f0, cpu_f2, cpu_f3;
-	device_t cpu1_f0, cpu1_f2, cpu1_f3;
-	msr_t msr;
-	u32 val;
-
-	printk(BIOS_INFO, "fam10_optimization()\n");
-	msr = rdmsr(0xC001001F);
-	msr.hi |= 1 << 14;	/* bit 46: EnableCf8ExtCfg */
-	wrmsr(0xC001001F, msr);
-
-	cpu_f0 = PCI_DEV(0, 0x18, 0);
-	cpu_f2 = PCI_DEV(0, 0x18, 2);
-	cpu_f3 = PCI_DEV(0, 0x18, 3);
-	cpu1_f0 = PCI_DEV(0, 0x19, 0);
-	cpu1_f2 = PCI_DEV(0, 0x19, 2);
-	cpu1_f3 = PCI_DEV(0, 0x19, 3);
-
-	val = pci_read_config32(cpu1_f3, 0x8C);
-	val |= 1 << 14;
-	pci_write_config32(cpu1_f3, 0x8C, val);
-
-	/* TODO: HT Buffer Allocation for (un)Ganged Links */
-	/* rpr Table 5-11, 5-12 */
-}
-#else
-#define fam10_optimization() do {} while (0)
-#endif	/* CONFIG_NORTHBRIDGE_AMD_AMDFAM10 || CONFIG_NORTHBRIDGE_AMD_AGESA_FAMILY10 */
 
 /*****************************************
 * Compliant with CIM_33's ATINB_PCICFG_POR_TABLE
@@ -563,7 +465,6 @@ void sr5650_early_setup(void)
 		break;
 	}
 
-	fam10_optimization();
 	sr5650_por_init(nb_dev);
 }
 
