@@ -16,19 +16,8 @@
 #include <console/console.h>
 #include <commonlib/endian.h>
 #include <commonlib/fsp.h>
-/*
- * Intel's code does not have a handle on changing global packing state.
- * Therefore, one needs to protect against packing policies that are set
- * globally for a compliation unit just by including a header file.
- */
-#pragma pack(push)
-
-/* Default bind FSP 1.1 API to edk2 UEFI 2.4 types. */
-#include <vendorcode/intel/edk2/uefi_2.4/uefi_types.h>
-#include <vendorcode/intel/fsp/fsp1_1/IntelFspPkg/Include/FspInfoHeader.h>
-
-/* Restore original packing policy. */
-#pragma pack(pop)
+#include <commonlib/uefi_types.h>
+#include <commonlib/fsp_info_header.h>
 
 #include <commonlib/helpers.h>
 #include <stdlib.h>
@@ -45,7 +34,8 @@
  */
 
 /* Return 0 if equal. Non-zero if not equal. */
-static int guid_compare(const EFI_GUID *le_guid, const EFI_GUID *native_guid)
+static int guid_compare(const struct EFI_GUID *le_guid,
+			const struct EFI_GUID *native_guid)
 {
 	if (read_le32(&le_guid->Data1) != native_guid->Data1)
 		return 1;
@@ -57,8 +47,8 @@ static int guid_compare(const EFI_GUID *le_guid, const EFI_GUID *native_guid)
 			ARRAY_SIZE(le_guid->Data4));
 }
 
-static const EFI_GUID ffs2_guid = EFI_FIRMWARE_FILE_SYSTEM2_GUID;
-static const EFI_GUID fih_guid = FSP_INFO_HEADER_GUID;
+static const struct EFI_GUID ffs2_guid = EFI_FIRMWARE_FILE_SYSTEM2_GUID;
+static const struct EFI_GUID fih_guid = FSP_INFO_HEADER_GUID;
 
 struct fsp_patch_table {
 	uint32_t signature;
@@ -115,9 +105,9 @@ static size_t reloc_offset(uint16_t reloc_entry)
 
 static int te_relocate(uintptr_t new_addr, void *te)
 {
-	EFI_TE_IMAGE_HEADER *teih;
-	EFI_IMAGE_DATA_DIRECTORY *relocd;
-	EFI_IMAGE_BASE_RELOCATION *relocb;
+	struct EFI_TE_IMAGE_HEADER *teih;
+	struct EFI_IMAGE_DATA_DIRECTORY *relocd;
+	struct EFI_IMAGE_BASE_RELOCATION *relocb;
 	uintptr_t image_base;
 	size_t fixup_offset;
 	size_t num_relocs;
@@ -143,7 +133,7 @@ static int te_relocate(uintptr_t new_addr, void *te)
 	 * program is found by adding the fixup_offset to the ImageBase.
 	 */
 	fixup_offset = read_le16(&teih->StrippedSize);
-	fixup_offset -= sizeof(EFI_TE_IMAGE_HEADER);
+	fixup_offset -= sizeof(struct EFI_TE_IMAGE_HEADER);
 	/* Keep track of a base that is correctly adjusted so that offsets
 	 * can be used directly. */
 	te_base = te;
@@ -213,7 +203,7 @@ static int te_relocate(uintptr_t new_addr, void *te)
 	return 0;
 }
 
-static size_t csh_size(const EFI_COMMON_SECTION_HEADER *csh)
+static size_t csh_size(const struct EFI_COMMON_SECTION_HEADER *csh)
 {
 	size_t size;
 
@@ -226,46 +216,46 @@ static size_t csh_size(const EFI_COMMON_SECTION_HEADER *csh)
 	return size;
 }
 
-static size_t section_data_offset(const EFI_COMMON_SECTION_HEADER *csh)
+static size_t section_data_offset(const struct EFI_COMMON_SECTION_HEADER *csh)
 {
 	if (csh_size(csh) == 0x00ffffff)
-		return sizeof(EFI_COMMON_SECTION_HEADER2);
+		return sizeof(struct EFI_COMMON_SECTION_HEADER2);
 	else
-		return sizeof(EFI_COMMON_SECTION_HEADER);
+		return sizeof(struct EFI_COMMON_SECTION_HEADER);
 }
 
-static size_t section_data_size(const EFI_COMMON_SECTION_HEADER *csh)
+static size_t section_data_size(const struct EFI_COMMON_SECTION_HEADER *csh)
 {
 	size_t section_size;
+	const struct EFI_COMMON_SECTION_HEADER2 *csh2 = (const void *)csh;
 
 	if (csh_size(csh) == 0x00ffffff)
-		section_size = read_le32(&SECTION2_SIZE(csh));
+		section_size = read_le32(&csh2->ExtendedSize);
 	else
 		section_size = csh_size(csh);
 
 	return section_size - section_data_offset(csh);
 }
 
-static size_t file_section_offset(const EFI_FFS_FILE_HEADER *ffsfh)
+static size_t file_section_offset(const struct EFI_FFS_FILE_HEADER *ffsfh)
 {
 	if (IS_FFS_FILE2(ffsfh))
-		return sizeof(EFI_FFS_FILE_HEADER2);
+		return sizeof(struct EFI_FFS_FILE_HEADER2);
 	else
-		return sizeof(EFI_FFS_FILE_HEADER);
+		return sizeof(struct EFI_FFS_FILE_HEADER);
 }
 
-static size_t ffs_file_size(const EFI_FFS_FILE_HEADER *ffsfh)
+static size_t ffs_file_size(const struct  EFI_FFS_FILE_HEADER *ffsfh)
 {
 	size_t size;
+	const struct EFI_FFS_FILE_HEADER2 *ffsfh2 = (const void *)ffsfh;
 
 	if (IS_FFS_FILE2(ffsfh)) {
 		/*
-		 * this cast is needed with UEFI 2.6 headers in order
-		 * to read the UINT32 value that FFS_FILE2_SIZE converts
-		 * the return into
+		 * Field is 64-bit in newer EFI headers, but reading as 32-bit
+		 * works for now because field is little-endian.
 		 */
-		uint32_t file2_size = FFS_FILE2_SIZE(ffsfh);
-		size = read_le32(&file2_size);
+		size = read_le32(&ffsfh2->ExtendedSize);
 	} else {
 		size = read_le8(&ffsfh->Size[0]) << 0;
 		size |= read_le8(&ffsfh->Size[1]) << 8;
@@ -319,9 +309,9 @@ static int relocate_patch_table(void *fsp, size_t size, size_t offset,
 static ssize_t relocate_remaining_items(void *fsp, size_t size,
 					uintptr_t new_addr, size_t fih_offset)
 {
-	EFI_FFS_FILE_HEADER *ffsfh;
-	EFI_COMMON_SECTION_HEADER *csh;
-	FSP_INFO_HEADER *fih;
+	struct EFI_FFS_FILE_HEADER *ffsfh;
+	struct EFI_COMMON_SECTION_HEADER *csh;
+	struct FSP_INFO_HEADER *fih;
 	ssize_t adjustment;
 	size_t offset;
 
@@ -394,9 +384,9 @@ static ssize_t relocate_remaining_items(void *fsp, size_t size,
 static ssize_t relocate_fvh(uintptr_t new_addr, void *fsp, size_t fsp_size,
 				size_t fvh_offset, size_t *fih_offset)
 {
-	EFI_FIRMWARE_VOLUME_HEADER *fvh;
-	EFI_FFS_FILE_HEADER *ffsfh;
-	EFI_COMMON_SECTION_HEADER *csh;
+	struct EFI_FIRMWARE_VOLUME_HEADER *fvh;
+	struct EFI_FFS_FILE_HEADER *ffsfh;
+	struct EFI_COMMON_SECTION_HEADER *csh;
 	size_t offset;
 	size_t file_offset;
 	size_t size;
@@ -426,7 +416,7 @@ static ssize_t relocate_fvh(uintptr_t new_addr, void *fsp, size_t fsp_size,
 	}
 
 	if (read_le16(&fvh->ExtHeaderOffset) != 0) {
-		EFI_FIRMWARE_VOLUME_EXT_HEADER *fveh;
+		struct EFI_FIRMWARE_VOLUME_EXT_HEADER *fveh;
 
 		offset += read_le16(&fvh->ExtHeaderOffset);
 		fveh = relative_offset(fsp, offset);
