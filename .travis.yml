@@ -1,0 +1,44 @@
+sudo: false
+dist: trusty
+
+language: c
+
+git:
+  submodules: false
+
+branches:
+  only:
+  - librecore-travis
+
+cache:
+  - apt
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+            - iasl
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6 && ABUILD_OPTS= "
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-4.0
+          packages:
+            - clang-4.0
+            - iasl
+      env:
+        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0 && ABUILD_OPTS=-L"
+
+before_install:
+    - eval "${MATRIX_EVAL}"
+    - ${CC} --version
+
+script: bash ./util/abuild/abuild -A -z -p none -c j2 ${ABUILD_OPTS}
