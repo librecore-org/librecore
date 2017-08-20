@@ -1,7 +1,0 @@
-config BOARD_GOOGLE_POPPY
-	bool "Poppy"
-	select BOARD_GOOGLE_BASEBOARD_POPPY
-
-config BOARD_GOOGLE_SORAKA
-	bool "Soraka"
-	select BOARD_GOOGLE_BASEBOARD_POPPY
